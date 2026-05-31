@@ -1,6 +1,7 @@
-import { Text, View, ScrollView, Image } from "react-native";
+import { Text, View, ScrollView, Image, TouchableOpacity } from "react-native";
 import { SafeAreaView } from "react-native-safe-area-context";
 import { images } from "@/constants/images";
+import { Link } from "expo-router";
 
 export default function Index() {
   return (
@@ -12,7 +13,12 @@ export default function Index() {
             className="w-20 h-20" 
             resizeMode="contain" 
           />
-          <Text className="text-h1 text-text-primary mt-2">lingua</Text>
+          <Text className="text-h1 text-text-primary mt-2">muolingo</Text>
+          <Link href="/onboarding" asChild>
+            <TouchableOpacity className="mt-4 bg-purple px-6 py-3 rounded-xl">
+              <Text className="text-white font-bold">Go to Onboarding</Text>
+            </TouchableOpacity>
+          </Link>
         </View>
 
         <View className="mb-8">
