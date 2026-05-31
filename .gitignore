@@ -18,6 +18,8 @@ expo-env.d.ts
 *.key
 *.mobileprovision
 
+/prompts
+/prompt_material
 # Metro
 .metro-health-check*
 
@@ -36,8 +38,9 @@ yarn-error.*
 # typescript
 *.tsbuildinfo
 
-example
+app-example
 
 # generated native folders
 /ios
 /android
+.env
