@@ -19,6 +19,11 @@ export default function Index() {
               <Text className="text-white font-bold">Go to Onboarding</Text>
             </TouchableOpacity>
           </Link>
+          <Link href="/sign-up" asChild>
+            <TouchableOpacity className="mt-2 bg-blue px-6 py-3 rounded-xl">
+              <Text className="text-white font-bold">Go to Sign Up</Text>
+            </TouchableOpacity>
+          </Link>
         </View>
 
         <View className="mb-8">
