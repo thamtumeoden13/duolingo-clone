@@ -1,199 +1,295 @@
-import { View, Text, TextInput, TouchableOpacity, Image, ScrollView, Modal, KeyboardAvoidingView, Platform, Pressable } from "react-native";
-import { SafeAreaView } from "react-native-safe-area-context";
+import SocialButton from "@/components/SocialButton";
+import VerificationModal from "@/components/VerificationModal";
 import { images } from "@/constants/images";
-import { Ionicons } from "@expo/vector-icons";
-import { useRouter } from "expo-router";
-import { useState, useRef, useEffect } from "react";
-import { cn } from "@/lib/utils";
+import { supabase } from "@/lib/supabase";
+import { AntDesign, FontAwesome, Ionicons } from "@expo/vector-icons";
+import * as Linking from "expo-linking";
+import { router } from "expo-router";
+import * as WebBrowser from "expo-web-browser";
+import { useState, useEffect } from "react";
+import {
+  Image,
+  KeyboardAvoidingView,
+  Platform,
+  ScrollView,
+  StyleSheet,
+  Text,
+  TextInput,
+  TouchableOpacity,
+  View,
+} from "react-native";
+import { SafeAreaView } from "react-native-safe-area-context";
+
+WebBrowser.maybeCompleteAuthSession();
 
 export default function SignUpScreen() {
-  const router = useRouter();
-  const [email, setEmail] = useState("alex@gmail.com");
-  const [password, setPassword] = useState("•••••••••");
-  const [showPassword, setShowPassword] = useState(false);
-  const [isModalVisible, setIsModalVisible] = useState(false);
-  const [verificationCode, setVerificationCode] = useState(["", "", "", "", "", ""]);
-  const inputRefs = useRef<(TextInput | null)[]>(new Array(6).fill(null));
+  const [email, setEmail] = useState("");
+  const [password, setPassword] = useState("");
+  const [showVerification, setShowVerification] = useState(false);
+  const [authError, setAuthError] = useState("");
+  const [isLoading, setIsLoading] = useState(false);
+  const [resendCountdown, setResendCountdown] = useState(0);
 
-  const handleSignUp = () => {
-    setIsModalVisible(true);
+  useEffect(() => {
+    let timer: any;
+    if (resendCountdown > 0) {
+      timer = setInterval(() => {
+        setResendCountdown((prev: number) => prev - 1);
+      }, 1000);
+    }
+    return () => clearInterval(timer);
+  }, [resendCountdown]);
+
+  useEffect(() => {
+    supabase.auth.getSession().then(({ data: { session } }) => {
+      if (session) {
+        router.replace("/");
+      }
+    });
+  }, []);
+
+  const handleSignUp = async () => {
+    setAuthError("");
+    setIsLoading(true);
+    try {
+      if (!email || !password) {
+        setAuthError("Please enter email and password.");
+        return;
+      }
+      
+      // Show verification modal instead of direct sign up
+      setShowVerification(true);
+      setResendCountdown(60);
+    } catch (err: any) {
+      setAuthError("An unexpected error occurred.");
+    } finally {
+      setIsLoading(false);
+    }
   };
 
-  const handleCodeChange = (text: string, index: number) => {
-    const newCode = [...verificationCode];
-    newCode[index] = text;
-    setVerificationCode(newCode);
+  const handleVerify = async (code: string) => {
+    setAuthError("");
+    try {
+      if (code === "000000") {
+        // Mock successful sign up
+        const { error } = await supabase.auth.signUp({
+          email,
+          password,
+          options: {
+            emailRedirectTo: Linking.createURL("/"),
+          },
+        });
 
-    if (text && index < 5) {
-      inputRefs.current[index + 1]?.focus();
-    }
+        if (error) {
+          setAuthError(error.message || "We couldn't create your account. Please try again.");
+          return;
+        }
 
-    if (newCode.every((digit) => digit !== "") && index === 5) {
-       // Automatically navigate to home when last digit is entered
-       setTimeout(() => {
-         setIsModalVisible(false);
-         router.replace("/");
-       }, 500);
+        router.replace("/");
+      } else {
+        setAuthError("Invalid verification code. Try 000000");
+      }
+    } catch (err) {
+      console.error("Verification failed", err);
+      setAuthError("Verification failed. Please try again.");
     }
   };
 
-  const handleKeyPress = (e: any, index: number) => {
-    if (e.nativeEvent.key === "Backspace" && !verificationCode[index] && index > 0) {
-      inputRefs.current[index - 1]?.focus();
+  const handleResend = async () => {
+    if (resendCountdown > 0) return;
+    setResendCountdown(60);
+  };
+
+
+  const handleSSO = async (provider: "google" | "apple" | "facebook") => {
+    setAuthError("");
+    try {
+      const { data, error } = await supabase.auth.signInWithOAuth({
+        provider,
+        options: {
+          redirectTo: Linking.createURL("/"),
+        },
+      });
+
+      if (error) throw error;
+      
+      if (data.url) {
+        const result = await WebBrowser.openAuthSessionAsync(data.url, Linking.createURL("/"));
+        if (result.type === "success") {
+          const { url } = result;
+          const params = Linking.parse(url);
+          if (params.queryParams?.access_token) {
+            await supabase.auth.setSession({
+              access_token: params.queryParams.access_token as string,
+              refresh_token: params.queryParams.refresh_token as string,
+            });
+            router.replace("/");
+          }
+        }
+      }
+    } catch (err) {
+      console.error("SSO sign-up failed", err);
+      setAuthError("Couldn't continue with social sign up. Please try again.");
     }
   };
 
   return (
-    <SafeAreaView style={{ flex: 1, backgroundColor: "#FFFFFF" }}>
-      <ScrollView contentContainerStyle={{ flexGrow: 1 }} keyboardShouldPersistTaps="handled">
-        <View className="px-6 pt-4 pb-10">
-          {/* Back Button */}
-          <TouchableOpacity onPress={() => router.back()} className="mb-6 w-10 h-10 items-start justify-center">
-            <Ionicons name="chevron-back" size={28} color="#0D132B" />
-          </TouchableOpacity>
+    <SafeAreaView style={{ flex: 1, backgroundColor: "#fff" }}>
+      <KeyboardAvoidingView
+        style={{ flex: 1 }}
+        behavior={Platform.OS === "ios" ? "padding" : "height"}
+      >
+        <ScrollView
+          contentContainerStyle={{ flexGrow: 1 }}
+          keyboardShouldPersistTaps="handled"
+          showsVerticalScrollIndicator={false}
+        >
+          <View className="flex-1 px-6">
+            {/* Back */}
+            <TouchableOpacity
+              onPress={() => router.back()}
+              className="mt-4 w-10 h-10 justify-center"
+            >
+              <Ionicons name="chevron-back" size={24} color="#001328" />
+            </TouchableOpacity>
 
-          {/* Title & Subtitle */}
-          <View className="mb-4">
-            <Text className="text-[32px] font-bold text-text-primary mb-2">Create your account</Text>
-            <Text className="text-body-lg text-text-secondary">Start your language journey today ✨</Text>
-          </View>
+            {/* Header */}
+            <Text className="h1 mt-4">Create your account</Text>
+            <Text className="body-md text-text-secondary mt-2">
+              Start your language journey today ✨
+            </Text>
 
-          {/* Mascot */}
-          <View className="items-center mb-8">
-            <Image
-              source={images.mascotAuth}
-              className="w-[200px] h-[150px]"
-              resizeMode="contain"
-            />
-          </View>
-
-          {/* Form */}
-          <View className="gap-y-4 mb-6">
-            <View className="bg-white border border-border rounded-2xl p-4">
-              <Text className="text-caption text-text-secondary mb-1">Email</Text>
-              <TextInput
-                value={email}
-                onChangeText={setEmail}
-                placeholder="Enter your email"
-                className="text-body-lg text-text-primary font-medium p-0"
-                keyboardType="email-address"
-                autoCapitalize="none"
+            {/* Mascot */}
+            <View className="items-center mt-6 mb-6">
+              <Image
+                source={images.mascotAuth}
+                style={{ width: 160, height: 160 }}
+                resizeMode="contain"
               />
             </View>
 
-            <View className="bg-white border border-border rounded-2xl p-4 flex-row items-center">
-              <View className="flex-1">
-                <Text className="text-caption text-text-secondary mb-1">Password</Text>
-                <TextInput
-                  value={password}
-                  onChangeText={setPassword}
-                  placeholder="Enter your password"
-                  className="text-body-lg text-text-primary font-medium p-0"
-                  secureTextEntry={!showPassword}
-                />
-              </View>
-              <TouchableOpacity onPress={() => setShowPassword(!showPassword)}>
-                <Ionicons name={showPassword ? "eye-off-outline" : "eye-outline"} size={24} color="#6B7280" />
+            {/* Email */}
+            <View style={styles.inputContainer}>
+              <Text style={styles.inputLabel}>Email</Text>
+              <TextInput
+                value={email}
+                onChangeText={setEmail}
+                placeholder="alex@gmail.com"
+                placeholderTextColor="#9ca3af"
+                keyboardType="email-address"
+                autoCapitalize="none"
+                style={styles.input}
+              />
+            </View>
+
+            {/* Password */}
+            <View style={styles.inputContainer}>
+              <Text style={styles.inputLabel}>Password</Text>
+              <TextInput
+                value={password}
+                onChangeText={setPassword}
+                placeholder="••••••••"
+                placeholderTextColor="#9ca3af"
+                secureTextEntry
+                autoCapitalize="none"
+                style={styles.input}
+              />
+            </View>
+
+            {authError ? (
+              <Text className="body-sm text-error mb-2">{authError}</Text>
+            ) : null}
+
+            {/* Sign Up button */}
+            <TouchableOpacity
+              className="bg-lingua-purple rounded-2xl py-4 items-center mt-2"
+              activeOpacity={0.85}
+              onPress={handleSignUp}
+              disabled={!email || !password || isLoading}
+              style={{ opacity: !email || !password || isLoading ? 0.6 : 1 }}
+              testID="sign-up-button"
+            >
+              <Text className="font-poppins-semibold text-base text-white">
+                {isLoading ? "Creating account..." : "Sign Up"}
+              </Text>
+            </TouchableOpacity>
+
+            {/* Divider */}
+            <View className="flex-row items-center my-6 gap-3">
+              <View className="flex-1 h-px bg-border" />
+              <Text className="body-sm text-text-secondary">
+                or continue with
+              </Text>
+              <View className="flex-1 h-px bg-border" />
+            </View>
+
+            {/* Social */}
+            <SocialButton
+              icon={<AntDesign name="google" size={20} color="#DB4437" />}
+              label="Continue with Google"
+              onPress={() => handleSSO("google")}
+            />
+            <SocialButton
+              icon={<FontAwesome name="facebook" size={20} color="#1877F2" />}
+              label="Continue with Facebook"
+              onPress={() => handleSSO("facebook")}
+            />
+            <SocialButton
+              icon={<AntDesign name="apple" size={20} color="#000" />}
+              label="Continue with Apple"
+              onPress={() => handleSSO("apple")}
+            />
+
+            <View className="flex-row justify-center mt-4 mb-8">
+              <Text className="body-md text-text-secondary">
+                Already have an account?{" "}
+              </Text>
+              <TouchableOpacity
+                onPress={() => router.replace("/(auth)/sign-in")}
+              >
+                <Text className="body-md text-lingua-purple font-poppins-semibold">
+                  Log in
+                </Text>
               </TouchableOpacity>
             </View>
+
           </View>
+        </ScrollView>
+      </KeyboardAvoidingView>
 
-          {/* Sign Up Button */}
-          <TouchableOpacity
-            onPress={handleSignUp}
-            className="bg-purple w-full h-[64px] rounded-2xl items-center justify-center mb-8"
-            activeOpacity={0.8}
-          >
-            <Text className="text-white text-lg font-bold">Sign Up</Text>
-          </TouchableOpacity>
-
-          {/* Divider */}
-          <View className="flex-row items-center mb-8">
-            <View className="flex-1 h-[1px] bg-border" />
-            <Text className="px-4 text-text-secondary text-body-md font-medium">or continue with</Text>
-            <View className="flex-1 h-[1px] bg-border" />
-          </View>
-
-          {/* Social Buttons */}
-          <View className="gap-y-4 mb-10">
-            <SocialButton icon="logo-google" text="Continue with Google" color="#EB4335" />
-            <SocialButton icon="logo-facebook" text="Continue with Facebook" color="#1877F2" />
-            <SocialButton icon="logo-apple" text="Continue with Apple" color="#000000" />
-          </View>
-
-          {/* Footer Link */}
-          <View className="flex-row justify-center items-center">
-            <Text className="text-text-secondary text-body-lg">Already have an account? </Text>
-            <TouchableOpacity onPress={() => router.push("/sign-in")}>
-              <Text className="text-purple text-body-lg font-bold">Log in</Text>
-            </TouchableOpacity>
-          </View>
-        </View>
-      </ScrollView>
-
-      {/* Verification Modal */}
-      <Modal
-        visible={isModalVisible}
-        transparent
-        animationType="fade"
-      >
-        <KeyboardAvoidingView
-          behavior={Platform.OS === "ios" ? "padding" : "height"}
-          className="flex-1"
-        >
-          <Pressable 
-            className="flex-1 bg-black/50 justify-center px-6"
-            onPress={() => setIsModalVisible(false)}
-          >
-            <Pressable className="bg-white rounded-3xl p-8 items-center" onPress={(e) => e.stopPropagation()}>
-              <Text className="text-h2 text-text-primary mb-2 text-center">Verify your email</Text>
-              <Text className="text-body-md text-text-secondary mb-8 text-center">
-                We've sent a 6-digit code to your email. Please enter it below to continue.
-              </Text>
-
-              <View className="flex-row justify-between w-full mb-8">
-                {verificationCode.map((digit, index) => (
-                  <TextInput
-                    key={index}
-                    ref={(el) => (inputRefs.current[index] = el)}
-                    style={{ 
-                      width: 40, 
-                      height: 56, 
-                      borderBottomWidth: 2, 
-                      borderBottomColor: "#E5E7EB",
-                      textAlign: "center",
-                      fontSize: 24,
-                      fontWeight: "bold",
-                      color: "#0D132B"
-                    }}
-                    maxLength={1}
-                    keyboardType="number-pad"
-                    value={digit}
-                    onChangeText={(text) => handleCodeChange(text, index)}
-                    onKeyPress={(e) => handleKeyPress(e, index)}
-                  />
-                ))}
-              </View>
-
-              <TouchableOpacity
-                onPress={() => setIsModalVisible(false)}
-                className="w-full h-14 bg-surface rounded-2xl items-center justify-center"
-              >
-                <Text className="text-text-primary font-bold">Cancel</Text>
-              </TouchableOpacity>
-            </Pressable>
-          </Pressable>
-        </KeyboardAvoidingView>
-      </Modal>
+      <VerificationModal
+        visible={showVerification}
+        email={email}
+        onClose={() => setShowVerification(false)}
+        onVerify={handleVerify}
+        onResend={handleResend}
+        resendCountdown={resendCountdown}
+        error={authError}
+      />
     </SafeAreaView>
   );
 }
 
-function SocialButton({ icon, text, color }: { icon: any; text: string; color: string }) {
-  return (
-    <TouchableOpacity className="flex-row items-center justify-center h-[64px] border border-border rounded-2xl px-4">
-      <Ionicons name={icon} size={24} color={color} style={{ marginRight: 12 }} />
-      <Text className="text-text-primary font-bold text-lg ml-3">{text}</Text>
-    </TouchableOpacity>
-  );
-}
+const styles = StyleSheet.create({
+  inputContainer: {
+    borderWidth: 1,
+    borderColor: "#e5e7eb",
+    borderRadius: 16,
+    paddingHorizontal: 16,
+    paddingTop: 10,
+    paddingBottom: 12,
+    marginBottom: 12,
+  },
+  inputLabel: {
+    fontFamily: "Poppins-Regular",
+    fontSize: 11,
+    color: "#6b7280",
+    marginBottom: 2,
+  },
+  input: {
+    fontFamily: "Poppins-Regular",
+    fontSize: 14,
+    color: "#001328",
+    padding: 0,
+  },
+});

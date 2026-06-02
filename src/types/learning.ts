@@ -1,33 +1,51 @@
-export type LanguageCode = "es" | "fr" | "de" | "it" | "pt" | "ja" | "ko" | "zh";
+export type LanguageCode = "es" | "fr" | "ja" | "ko" | "de" | "zh";
 
 export interface Language {
-  id: string;
   code: LanguageCode;
   name: string;
   nativeName: string;
   flag: string;
+  color: string;
+  learners: string;
 }
 
-export type ActivityType = "multiple_choice" | "translation" | "listening" | "speaking" | "matching";
+export type ActivityType =
+    | "vocabulary"
+    | "translate"
+    | "multiple-choice"
+    | "listen";
 
 export interface VocabularyItem {
-  id: string;
   word: string;
   translation: string;
-  partOfSpeech?: string;
-  exampleSentence?: string;
-  audioUrl?: string;
+  pronunciation: string;
+  emoji?: string;
+}
+
+export interface Phrase {
+  text: string;
+  translation: string;
+  pronunciation: string;
 }
 
 export interface Activity {
   id: string;
   type: ActivityType;
   question: string;
-  options?: string[];
   correctAnswer: string;
-  explanation?: string;
-  audioUrl?: string;
-  image?: any;
+  options?: string[];
+  hint?: string;
+}
+
+export interface LessonGoal {
+  description: string;
+  xpReward: number;
+}
+
+export interface AITeacherPrompt {
+  systemPrompt: string;
+  introMessage: string;
+  topics: string[];
 }
 
 export interface Lesson {
@@ -35,24 +53,20 @@ export interface Lesson {
   unitId: string;
   title: string;
   description: string;
-  type: "video" | "audio" | "chat" | "practice";
-  xp: number;
-  activities: Activity[];
+  icon: string;
+  xpReward: number;
+  goals: LessonGoal[];
   vocabulary: VocabularyItem[];
-  aiTeacherPrompt?: string; // For Vision Agent / AI lessons
+  phrases: Phrase[];
+  activities: Activity[];
+  aiTeacherPrompt: AITeacherPrompt;
 }
 
 export interface Unit {
   id: string;
-  languageId: string;
+  languageCode: LanguageCode;
   title: string;
   description: string;
   order: number;
-  lessons: string[]; // Array of lesson IDs
-}
-
-export interface LessonGoal {
-  id: string;
-  text: string;
-  isCompleted: boolean;
+  lessonIds: string[];
 }

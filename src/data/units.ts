@@ -1,20 +1,52 @@
-import { Unit } from "@/types/learning";
+import { Unit } from '@/types/learning';
 
-export const units: Unit[] = [
+export const UNITS: Unit[] = [
   {
-    id: "unit-es-1",
-    languageId: "lang-es",
-    title: "Unit 1: The Basics",
-    description: "Learn essential greetings and basic introductions in Spanish.",
+    id: 'es-unit-1',
+    languageCode: 'es',
+    title: 'Greetings & Basics',
+    description: 'Start your Spanish journey with everyday phrases',
     order: 1,
-    lessons: ["lesson-es-1-1", "lesson-es-1-2", "lesson-es-1-3"],
+    lessonIds: ['es-lesson-1', 'es-lesson-2', 'es-lesson-3'],
   },
   {
-    id: "unit-fr-1",
-    languageId: "lang-fr",
-    title: "Unit 1: First Steps",
-    description: "Start your journey with basic French phrases and vocabulary.",
+    id: 'fr-unit-1',
+    languageCode: 'fr',
+    title: 'Bonjour! Greetings',
+    description: 'Learn how to greet and introduce yourself in French',
     order: 1,
-    lessons: ["lesson-fr-1-1"],
+    lessonIds: ['fr-lesson-1', 'fr-lesson-2', 'fr-lesson-3', 'fr-lesson-4', 'fr-lesson-5'],
+  },
+  {
+    id: 'ja-unit-1',
+    languageCode: 'ja',
+    title: 'はじめまして — First Steps',
+    description: 'Learn essential Japanese phrases for meeting people',
+    order: 1,
+    lessonIds: ['ja-lesson-1', 'ja-lesson-2', 'ja-lesson-3', 'ja-lesson-4', 'ja-lesson-5'],
+  },
+  {
+    id: 'de-unit-1',
+    languageCode: 'de',
+    title: 'Hallo! German Basics',
+    description: 'Master everyday German greetings and introductions',
+    order: 1,
+    lessonIds: ['de-lesson-1', 'de-lesson-2', 'de-lesson-3', 'de-lesson-4', 'de-lesson-5'],
+  },
+  {
+    id: 'ko-unit-1',
+    languageCode: 'ko',
+    title: '안녕하세요! Korean Basics',
+    description: 'Learn the essentials of Korean greetings and introductions',
+    order: 1,
+    lessonIds: ['ko-lesson-1'],
+  },
+  {
+    id: 'zh-unit-1',
+    languageCode: 'zh',
+    title: '你好! Chinese Basics',
+    description: 'Master basic Chinese greetings and self-introductions',
+    order: 1,
+    lessonIds: ['zh-lesson-1'],
   },
 ];

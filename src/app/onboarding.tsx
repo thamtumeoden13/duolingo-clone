@@ -17,22 +17,22 @@ export default function OnboardingScreen() {
             className="w-10 h-10"
             resizeMode="contain"
           />
-          <Text className="text-h2 text-text-primary ml-2 font-bold">muolingo</Text>
+          <Text className="h2 ml-2">muolingo</Text>
         </View>
 
         {/* Hero Text */}
         <View className="mb-10">
-          <Text className="text-[40px] leading-[48px] font-bold text-text-primary">
+          <Text className="text-[40px] leading-[48px] font-poppins-bold text-text-primary">
             Your AI language
           </Text>
-          <Text className="text-[40px] leading-[48px] font-bold text-purple">
+          <Text className="text-[40px] leading-[48px] font-poppins-bold text-lingua-purple">
             teacher.
           </Text>
         </View>
 
         {/* Description */}
         <View className="mb-12">
-          <Text className="text-body-lg text-text-secondary leading-7">
+          <Text className="body-lg text-text-secondary">
             Real conversations, personalized lessons, anytime, anywhere.
           </Text>
         </View>
@@ -45,18 +45,18 @@ export default function OnboardingScreen() {
           </View>
 
           {/* ¡Hola! Bubble */}
-          <View className="absolute top-[-20px] right-10 bg-[#F5F3FF] px-4 py-2 rounded-2xl rounded-br-none shadow-sm">
+          <View className="absolute -top-5 right-10 bg-[#F5F3FF] px-4 py-2 rounded-2xl rounded-br-none shadow-sm">
             <Text className="text-lg font-medium text-purple">¡Hola!</Text>
           </View>
 
           {/* 你好! Bubble */}
-          <View className="absolute top-[40px] right-2 bg-[#FFF1F0] px-4 py-2 rounded-2xl rounded-br-none shadow-sm">
+          <View className="absolute top-10 right-2 bg-[#FFF1F0] px-4 py-2 rounded-2xl rounded-br-none shadow-sm">
             <Text className="text-lg font-medium text-[#FF4D4F]">你好!</Text>
           </View>
 
           <Image
             source={images.mascotWelcome}
-            className="w-[280px] h-[280px]"
+            className="w-70 h-70"
             resizeMode="contain"
           />
         </View>
@@ -65,10 +65,10 @@ export default function OnboardingScreen() {
         <View className="pb-10">
           <TouchableOpacity
             activeOpacity={0.8}
-            onPress={() => router.push("/sign-up")}
-            className="bg-purple w-full h-[64px] rounded-2xl flex-row items-center justify-center relative"
+            onPress={() => router.push("/sign-in")}
+            className="bg-lingua-purple w-full h-16 rounded-2xl flex-row items-center justify-center relative"
           >
-            <Text className="text-white text-lg font-bold">Get Started</Text>
+            <Text className="text-white text-lg font-poppins-bold">Get Started</Text>
             <View className="absolute right-6">
               <Ionicons name="chevron-forward" size={24} color="white" />
             </View>
