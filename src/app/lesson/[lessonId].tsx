@@ -29,7 +29,7 @@ export default function AudioLessonScreen() {
         </TouchableOpacity>
       </View>
     );
-  }c
+  }
 
   return (
     <View style={{ flex: 1, backgroundColor: "#fff" }}>
