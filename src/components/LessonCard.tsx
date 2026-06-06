@@ -25,7 +25,7 @@ export const LessonCard: React.FC<LessonCardProps> = ({
       onPress={onPress}
       className={`mb-4 flex-row items-center justify-between rounded-2xl border-2 p-4 ${
         isInProgress
-          ? 'border-indigo-500 bg-indigo-50'
+          ? 'border-lingua-purple bg-indigo-50/30'
           : 'border-gray-100 bg-white'
       }`}
       style={{
@@ -42,19 +42,22 @@ export const LessonCard: React.FC<LessonCardProps> = ({
         </Text>
         <Text className="text-lg font-bold text-gray-800">{lesson.title}</Text>
         {isInProgress && (
-          <Text className="mt-1 text-sm font-semibold text-indigo-500">
+          <Text className="mt-1 text-sm font-semibold text-lingua-purple">
             In progress
           </Text>
         )}
-        {!isInProgress && !isCompleted && (
+        {!isInProgress && !isCompleted && !isLocked && (
           <Text className="mt-1 text-xs text-gray-400">0 / {lesson.xpReward} XP</Text>
+        )}
+        {isLocked && (
+          <Text className="mt-1 text-xs text-gray-400">0 / {lesson.xpReward} lessons</Text>
         )}
       </View>
 
       <View className="ml-4 items-center justify-center">
         {isCompleted ? (
-          <View className="h-8 w-8 items-center justify-center rounded-full bg-green-500">
-            <Ionicons name="checkmark" size={20} color="white" />
+          <View className="h-6.5 w-6.5 items-center justify-center rounded-full bg-success">
+            <Ionicons name="checkmark" size={16} color="white" />
           </View>
         ) : isInProgress ? (
            <View className="h-10 w-10 items-center justify-center rounded-xl bg-white shadow-sm">

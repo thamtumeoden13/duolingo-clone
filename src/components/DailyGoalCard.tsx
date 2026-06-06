@@ -11,20 +11,20 @@ export function DailyGoalCard({ currentXP, goalXP }: DailyGoalCardProps) {
   const progress = goalXP > 0 ? Math.min((currentXP / goalXP) * 100, 100) : 0;
 
   return (
-    <View className="flex-row items-center bg-[#FFF5E8] rounded-[20px] py-4 pl-5 pr-3 mb-4">
+    <View className="flex-row items-center bg-[#FFF5E8] rounded-2.5xl py-4 pl-5 pr-3 mb-4">
       <View className="flex-1 pr-2">
         <Text className="font-poppins text-xs text-text-secondary mb-1">
           Daily goal
         </Text>
         <Text>
-          <Text className="font-poppins-bold text-[28px] text-text-primary leading-[34px]">
+          <Text className="font-poppins-bold text-3xl text-text-primary leading-8.5">
             {currentXP}
           </Text>
-          <Text className="font-poppins text-sm text-text-secondary leading-[34px]">
+          <Text className="font-poppins text-sm text-text-secondary leading-8.5">
             {` / ${goalXP} XP`}
           </Text>
         </Text>
-        <View className="h-2 bg-border rounded mt-[10px] overflow-hidden">
+        <View className="h-2 bg-border rounded mt-2.5 overflow-hidden">
           <View
             className="h-2 bg-streak rounded"
             style={{ width: `${Math.round(progress)}%` as `${number}%` }}

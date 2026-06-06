@@ -47,24 +47,24 @@ export function TodayPlan() {
   return (
     <View>
       <View className="flex-row items-center justify-between mb-3">
-        <Text className="font-poppins-semibold text-[17px] text-text-primary">
+        <Text className="font-poppins-semibold text-4.25 text-text-primary">
           {"Today's plan"}
         </Text>
         <TouchableOpacity activeOpacity={0.7}>
-          <Text className="font-poppins-medium text-[13px] text-lingua-blue">
+          <Text className="font-poppins-medium text-3.25 text-lingua-blue">
             View all
           </Text>
         </TouchableOpacity>
       </View>
 
       <View
-        className="bg-white rounded-[20px] border border-border mb-4 overflow-hidden"
+        className="bg-white rounded-2.5xl border border-border mb-4 overflow-hidden"
         style={styles.planCardShadow}
       >
         {PLAN_ITEMS.map((item, index) => (
           <View key={item.id}>
             {index > 0 && <View className="h-px bg-border mx-4" />}
-            <View className="flex-row items-center px-4 py-[14px]">
+            <View className="flex-row items-center px-4 py-3.5">
               <View
                 className="w-11 h-11 rounded-xl items-center justify-center"
                 style={{ backgroundColor: item.iconBg }}
@@ -80,11 +80,11 @@ export function TodayPlan() {
                 </Text>
               </View>
               {item.completed ? (
-                <View className="w-[26px] h-[26px] rounded-full bg-lingua-blue items-center justify-center">
+                <View className="w-6.5 h-6.5 rounded-full bg-lingua-blue items-center justify-center">
                   <Ionicons name="checkmark" size={14} color="#fff" />
                 </View>
               ) : (
-                <View className="w-[26px] h-[26px] rounded-full border-2 border-border" />
+                <View className="w-6.5 h-6.5 rounded-full border-2 border-border" />
               )}
             </View>
           </View>

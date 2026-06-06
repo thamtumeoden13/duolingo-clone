@@ -22,10 +22,10 @@ export default function OnboardingScreen() {
 
         {/* Hero Text */}
         <View className="mb-10">
-          <Text className="text-[40px] leading-[48px] font-poppins-bold text-text-primary">
+          <Text className="text-4xl leading-12 font-poppins-bold text-text-primary">
             Your AI language
           </Text>
-          <Text className="text-[40px] leading-[48px] font-poppins-bold text-lingua-purple">
+          <Text className="text-4xl leading-12 font-poppins-bold text-lingua-purple">
             teacher.
           </Text>
         </View>

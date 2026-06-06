@@ -57,4 +57,12 @@ export const UNITS: Unit[] = [
     order: 1,
     lessonIds: ['zh-lesson-1', 'zh-lesson-2', 'zh-lesson-3', 'zh-lesson-4', 'zh-lesson-5'],
   },
+  {
+    id: 'en-unit-1',
+    languageCode: 'en',
+    title: 'Hello! English Basics',
+    description: 'Start your English journey with everyday phrases',
+    order: 1,
+    lessonIds: ['en-lesson-1', 'en-lesson-2', 'en-lesson-3', 'en-lesson-4', 'en-lesson-5'],
+  },
 ];

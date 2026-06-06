@@ -169,7 +169,7 @@ export default function SignUpScreen() {
 
             {/* Email */}
             <View className="border border-border rounded-2xl px-4 pt-2.5 pb-3 mb-3">
-              <Text className="font-poppins-regular text-[11px] text-text-secondary mb-0.5">Email</Text>
+              <Text className="font-poppins-regular text-2.75 text-text-secondary mb-0.5">Email</Text>
               <TextInput
                 value={email}
                 onChangeText={setEmail}
@@ -183,7 +183,7 @@ export default function SignUpScreen() {
 
             {/* Password */}
             <View className="border border-border rounded-2xl px-4 pt-2.5 pb-3 mb-3">
-              <Text className="font-poppins-regular text-[11px] text-text-secondary mb-0.5">Password</Text>
+              <Text className="font-poppins-regular text-2.75 text-text-secondary mb-0.5">Password</Text>
               <TextInput
                 value={password}
                 onChangeText={setPassword}

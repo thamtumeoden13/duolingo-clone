@@ -104,7 +104,7 @@ export default function LanguageSelectScreen() {
                 <View className="items-center mt-6">
                     <Image 
                         source={images.earth} 
-                        className="w-full h-[100px]" 
+                        className="w-full h-25" 
                         resizeMode="contain" 
                     />
                 </View>

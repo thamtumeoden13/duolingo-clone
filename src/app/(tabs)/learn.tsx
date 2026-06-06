@@ -5,7 +5,7 @@ import {
   TouchableOpacity,
   Image,
   ScrollView,
-  Dimensions,
+  StyleSheet,
 } from "react-native";
 import { SafeAreaView } from "react-native-safe-area-context";
 import { Ionicons } from "@expo/vector-icons";
@@ -17,122 +17,113 @@ import { LESSONS } from "@/data/lessons";
 import { images } from "@/constants/images";
 import { LessonCard } from "@/components/LessonCard";
 
-const { width } = Dimensions.get("window");
-
 export default function Learn() {
   const { selectedLanguage } = useLanguageStore();
   const [activeTab, setActiveTab] = useState<"lessons" | "practice">("lessons");
 
   const currentUnits = UNITS.filter(
-    (u) => u.languageCode === selectedLanguage
+    (u) => u.languageCode === (selectedLanguage || "en")
   ).sort((a, b) => a.order - b.order);
 
-  // For now, we just show the first unit
-  const currentUnit = currentUnits[0];
-  const unitLessons = currentUnit
-    ? LESSONS.filter((l) => currentUnit.lessonIds.includes(l.id))
-    : [];
+  // For the UI, we'll pick the first unit of the selected language or a default one
+  const currentUnit = currentUnits[0] || UNITS.find(u => u.languageCode === 'en');
+  
+  const unitLessons = LESSONS.filter(l => currentUnit?.lessonIds.includes(l.id));
 
   const handleLessonPress = (lessonId: string) => {
-    // Navigate to lesson screen (to be implemented)
-    console.log("Opening lesson:", lessonId);
+    // Navigate to the lesson details (practice/start)
     router.push({
-        pathname: "/lesson",
-        params: { lessonId }
+      pathname: "/lesson",
+      params: { lessonId }
     } as any);
   };
 
   return (
     <SafeAreaView style={{ flex: 1, backgroundColor: "#fff" }}>
-      <ScrollView showsVerticalScrollIndicator={false} className="flex-1">
-        {/* Unit Header */}
-        <View className="px-6 py-4 flex-row items-center justify-between">
-          <TouchableOpacity onPress={() => router.back()}>
-            <Ionicons name="chevron-back" size={28} color="#1F2937" />
-          </TouchableOpacity>
-          <View className="items-center">
-            <Text className="text-xl font-bold text-gray-800">
-              {currentUnit?.title || "At the Café"}
-            </Text>
-            <Text className="text-sm font-medium text-gray-500">
-              Unit {currentUnit?.order || 1} • 3 / {unitLessons.length} lessons
-            </Text>
-          </View>
-          <TouchableOpacity>
-            <Ionicons name="bookmark-outline" size={24} color="#6366F1" />
-          </TouchableOpacity>
+      {/* Header */}
+      <View className="px-4 py-4 flex-row items-center justify-between">
+        <TouchableOpacity onPress={() => router.back()}>
+          <Ionicons name="chevron-back" size={28} color="#001328" />
+        </TouchableOpacity>
+        <View className="items-center flex-1">
+          <Text className="text-xl font-poppins-bold text-text-primary">
+            {currentUnit?.title || "Lessons"}
+          </Text>
+          <Text className="text-sm font-poppins text-text-secondary">
+            Unit {currentUnit?.order || 1} • 3 / {unitLessons.length} lessons
+          </Text>
+        </View>
+        <TouchableOpacity>
+          <Ionicons name="bookmark-outline" size={24} color="#6c4ef5" />
+        </TouchableOpacity>
+      </View>
+
+      <ScrollView 
+        showsVerticalScrollIndicator={false} 
+        className="flex-1 px-4"
+        contentContainerStyle={{ paddingBottom: 100 }}
+      >
+        {/* Hero Section */}
+        <View className="relative w-full h-56 mt-2 mb-6 rounded-3xl overflow-hidden bg-blue-50">
+            <Image 
+                source={images.cafeHero}
+                className="w-full h-full"
+                resizeMode="contain"
+            />
+            {/* Overlay for "Café" vibe if needed, but mascotWelcome is fine for now */}
+            <View className="absolute bottom-4 left-4 bg-white/20 px-3 py-1 rounded-full">
+                <Text className="text-white text-xs font-bold">In progress</Text>
+            </View>
         </View>
 
-        {/* Mascot Area */}
-        <View className="relative h-64 w-full items-center justify-center px-6">
-           <Image
-             source={images.earth} // Using earth as background
-             className="absolute top-0 left-0 w-full h-full opacity-10"
-             resizeMode="cover"
-           />
-           <Image
-             source={images.mascotHappy}
-             className="h-48 w-48"
-             resizeMode="contain"
-           />
-           {/* Cafe Building indicator could be added here if we had the asset */}
-           <View className="absolute bottom-4 right-10 bg-white p-2 rounded-2xl shadow-sm border border-gray-100">
-                <Text className="text-2xl">☕</Text>
-           </View>
-        </View>
-
-        {/* Tabs */}
-        <View className="mx-6 mb-6 flex-row rounded-2xl bg-gray-100 p-1">
-          <TouchableOpacity
-            onPress={() => setActiveTab("lessons")}
-            className={`flex-1 items-center rounded-xl py-3 ${
-              activeTab === "lessons" ? "bg-white shadow-sm" : ""
-            }`}
-          >
-            <Text
-              className={`font-bold ${
-                activeTab === "lessons" ? "text-indigo-500" : "text-gray-500"
-              }`}
+        {/* Tab Switcher */}
+        <View className="flex-row bg-gray-100 rounded-2.5xl p-1 mb-8">
+            <TouchableOpacity 
+                onPress={() => setActiveTab("lessons")}
+                className={`flex-1 py-3 rounded-2xl items-center ${activeTab === "lessons" ? "bg-white shadow-sm" : ""}`}
             >
-              Lessons
-            </Text>
-          </TouchableOpacity>
-          <TouchableOpacity
-            onPress={() => setActiveTab("practice")}
-            className={`flex-1 items-center rounded-xl py-3 ${
-              activeTab === "practice" ? "bg-white shadow-sm" : ""
-            }`}
-          >
-            <Text
-              className={`font-bold ${
-                activeTab === "practice" ? "text-indigo-500" : "text-gray-500"
-              }`}
+                <Text className={`font-poppins-semibold ${activeTab === "lessons" ? "text-lingua-purple" : "text-gray-400"}`}>
+                    Lessons
+                </Text>
+            </TouchableOpacity>
+            <TouchableOpacity 
+                onPress={() => setActiveTab("practice")}
+                className={`flex-1 py-3 rounded-2xl items-center ${activeTab === "practice" ? "bg-white shadow-sm" : ""}`}
             >
-              Practice
-            </Text>
-          </TouchableOpacity>
+                <Text className={`font-poppins-semibold ${activeTab === "practice" ? "text-lingua-purple" : "text-gray-400"}`}>
+                    Practice
+                </Text>
+            </TouchableOpacity>
         </View>
 
-        {/* Lesson List */}
-        <View className="px-6 pb-20">
-          {unitLessons.map((lesson, index) => {
-            // Mock status logic
-            let status: "completed" | "in-progress" | "locked" = "locked";
-            if (index < 2) status = "completed";
-            else if (index === 2) status = "in-progress";
+        {/* Lessons List */}
+        {activeTab === "lessons" ? (
+            <View>
+                {unitLessons.map((lesson, idx) => {
+                    // Mock status to match the image: 1st & 2nd completed, 3rd in progress, rest locked
+                    let status: "completed" | "in-progress" | "locked" = "locked";
+                    if (idx < 2) status = "completed";
+                    else if (idx === 2) status = "in-progress";
 
-            return (
-              <LessonCard
-                key={lesson.id}
-                lesson={lesson}
-                index={index}
-                status={status}
-                onPress={() => handleLessonPress(lesson.id)}
-              />
-            );
-          })}
-        </View>
+                    return (
+                        <LessonCard 
+                            key={lesson.id}
+                            lesson={lesson}
+                            index={idx}
+                            status={status}
+                            onPress={() => handleLessonPress(lesson.id)}
+                        />
+                    );
+                })}
+            </View>
+        ) : (
+            <View className="items-center py-10">
+                <Text className="text-gray-400">Practice content coming soon!</Text>
+            </View>
+        )}
       </ScrollView>
     </SafeAreaView>
   );
 }
+
+const styles = StyleSheet.create({});

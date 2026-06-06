@@ -4,12 +4,12 @@ import { Ionicons } from "@expo/vector-icons";
 
 export function NextUpCard() {
   return (
-    <View className="flex-row items-center bg-[#F5F8F1] rounded-[20px] p-5 mb-10 border border-[#D5E1C7]/30">
+    <View className="flex-row items-center bg-[#F5F8F1] rounded-2.5xl p-5 mb-10 border border-[#D5E1C7]/30">
       <View className="flex-1 mr-4">
         <Text className="font-poppins text-xs text-text-secondary mb-1">
           Next up
         </Text>
-        <Text className="font-poppins-bold text-[22px] text-text-primary leading-7 mb-1">
+        <Text className="font-poppins-bold text-2xl text-text-primary leading-7 mb-1">
           AI Video Call
         </Text>
         <Text className="font-poppins text-sm text-text-secondary">
@@ -27,7 +27,7 @@ export function NextUpCard() {
             resizeMode="cover"
           />
           <TouchableOpacity
-            className="absolute bottom-0 right-[-8] h-9 w-9 bg-[#84CC16] rounded-full items-center justify-center border-2 border-white shadow-sm"
+            className="absolute bottom-0 right--2 h-9 w-9 bg-[#84CC16] rounded-full items-center justify-center border-2 border-white shadow-sm"
             activeOpacity={0.85}
           >
             <Ionicons name="videocam" size={18} color="white" />
