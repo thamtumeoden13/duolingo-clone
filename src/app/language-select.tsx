@@ -54,12 +54,24 @@ export default function LanguageSelectScreen() {
         router.replace("/");
     };
 
+    const handleBack = () => {
+        if (router.canGoBack()) {
+            router.back();
+        } else {
+            // If we can't go back, it means we probably came from a Redirect in index.tsx
+            // If the user is signed in, we can't really go "back" to onboarding if they are already authenticated,
+            // but since language-select is required, this is a bit of a deadlock if they want to "cancel".
+            // However, providing a fallback avoids the crash.
+            router.replace("/onboarding");
+        }
+    };
+
     return (
         <SafeAreaView style={{ flex: 1, backgroundColor: "#fff" }}>
             {/* Header */}
             <View className="flex-row items-center px-4 py-4">
                 <TouchableOpacity
-                    onPress={() => router.back()}
+                    onPress={handleBack}
                     className="w-10 h-10 items-center justify-center rounded-xl border border-gray-100"
                 >
                     <Ionicons name="close" size={24} color="#001328" />
@@ -75,7 +87,7 @@ export default function LanguageSelectScreen() {
                 data={LANGUAGES}
                 keyExtractor={(item) => item.code}
                 renderItem={renderItem}
-                contentContainerStyle={{ paddingHorizontal: 20, paddingTop: 10, pb: 140 }}
+                contentContainerStyle={{ paddingHorizontal: 20, paddingTop: 10, paddingBottom: 140 }}
                 showsVerticalScrollIndicator={false}
             />
 

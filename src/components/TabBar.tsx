@@ -1,10 +1,11 @@
 import { View, Text, TouchableOpacity, StyleSheet, Dimensions } from "react-native";
 import { BottomTabBarProps } from "@react-navigation/bottom-tabs";
-import { Home, BookOpen, Video, MessageCircle, User } from "lucide-react-native";
+import { Home, BookOpen, MessageCircle, User, Sparkles } from "lucide-react-native";
 import Animated, { 
   useAnimatedStyle, 
-  withSpring, 
+  withTiming, 
   useSharedValue, 
+  Easing,
 } from "react-native-reanimated";
 import { useEffect } from "react";
 import { colors } from "@/constants/theme";
@@ -15,7 +16,7 @@ const { width } = Dimensions.get("window");
 const ICONS = {
   index: Home,
   learn: BookOpen,
-  "ai-teacher": Video,
+  "ai-teacher": Sparkles,
   chat: MessageCircle,
   profile: User,
 };
@@ -26,9 +27,9 @@ export default function TabBar({ state, descriptors, navigation }: BottomTabBarP
   const translateX = useSharedValue(state.index * tabWidth);
 
   useEffect(() => {
-    translateX.value = withSpring(state.index * tabWidth, {
-      damping: 15,
-      stiffness: 100,
+    translateX.value = withTiming(state.index * tabWidth, {
+      duration: 300,
+      easing: Easing.bezier(0.25, 0.1, 0.25, 1),
     });
   }, [state.index]);
 
@@ -117,7 +118,7 @@ const styles = StyleSheet.create({
   },
   indicatorContainer: {
     position: "absolute",
-    top: 7.5, // (60 - 45) / 2 approx, since container height is 80 but we use 60 for touchables
+    top: 1.0, // (60 - 45) / 2 approx, since container height is 80 but we use 60 for touchables
     height: 60,
     alignItems: "center",
     justifyContent: "center",
