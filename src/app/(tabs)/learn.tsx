@@ -5,9 +5,9 @@ import {
   TouchableOpacity,
   Image,
   ScrollView,
-  SafeAreaView,
   Dimensions,
 } from "react-native";
+import { SafeAreaView } from "react-native-safe-area-context";
 import { Ionicons } from "@expo/vector-icons";
 import { router } from "expo-router";
 
@@ -24,7 +24,7 @@ export default function Learn() {
   const [activeTab, setActiveTab] = useState<"lessons" | "practice">("lessons");
 
   const currentUnits = UNITS.filter(
-    (u) => u.languageCode === selectedLanguage?.code
+    (u) => u.languageCode === selectedLanguage
   ).sort((a, b) => a.order - b.order);
 
   // For now, we just show the first unit
@@ -67,7 +67,7 @@ export default function Learn() {
         <View className="relative h-64 w-full items-center justify-center px-6">
            <Image
              source={images.earth} // Using earth as background
-             style={{ position: 'absolute', top: 0, left: 0, width: '100%', height: '100%', opacity: 0.1 }}
+             className="absolute top-0 left-0 w-full h-full opacity-10"
              resizeMode="cover"
            />
            <Image

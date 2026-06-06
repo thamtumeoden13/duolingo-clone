@@ -83,6 +83,10 @@ export default function TabBar({ state, descriptors, navigation }: BottomTabBarP
             key={route.key}
             onPress={onPress}
             style={{ flex: 1, alignItems: "center", justifyContent: "center", height: 60 }}
+            activeOpacity={0.8}
+            accessibilityRole={"tab"}
+            accessibilityState={{ selected: isFocused }}
+            accessibilityLabel={label}
           >
             <View className="items-center justify-center">
               <Icon 

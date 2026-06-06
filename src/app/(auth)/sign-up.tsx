@@ -12,7 +12,6 @@ import {
   KeyboardAvoidingView,
   Platform,
   ScrollView,
-  StyleSheet,
   Text,
   TextInput,
   TouchableOpacity,
@@ -169,8 +168,8 @@ export default function SignUpScreen() {
             </View>
 
             {/* Email */}
-            <View style={styles.inputContainer}>
-              <Text style={styles.inputLabel}>Email</Text>
+            <View className="border border-border rounded-2xl px-4 pt-2.5 pb-3 mb-3">
+              <Text className="font-poppins-regular text-[11px] text-text-secondary mb-0.5">Email</Text>
               <TextInput
                 value={email}
                 onChangeText={setEmail}
@@ -178,13 +177,13 @@ export default function SignUpScreen() {
                 placeholderTextColor="#9ca3af"
                 keyboardType="email-address"
                 autoCapitalize="none"
-                style={styles.input}
+                className="font-poppins-regular text-sm text-text-primary p-0"
               />
             </View>
 
             {/* Password */}
-            <View style={styles.inputContainer}>
-              <Text style={styles.inputLabel}>Password</Text>
+            <View className="border border-border rounded-2xl px-4 pt-2.5 pb-3 mb-3">
+              <Text className="font-poppins-regular text-[11px] text-text-secondary mb-0.5">Password</Text>
               <TextInput
                 value={password}
                 onChangeText={setPassword}
@@ -192,7 +191,7 @@ export default function SignUpScreen() {
                 placeholderTextColor="#9ca3af"
                 secureTextEntry
                 autoCapitalize="none"
-                style={styles.input}
+                className="font-poppins-regular text-sm text-text-primary p-0"
               />
             </View>
 
@@ -269,27 +268,3 @@ export default function SignUpScreen() {
     </SafeAreaView>
   );
 }
-
-const styles = StyleSheet.create({
-  inputContainer: {
-    borderWidth: 1,
-    borderColor: "#e5e7eb",
-    borderRadius: 16,
-    paddingHorizontal: 16,
-    paddingTop: 10,
-    paddingBottom: 12,
-    marginBottom: 12,
-  },
-  inputLabel: {
-    fontFamily: "Poppins-Regular",
-    fontSize: 11,
-    color: "#6b7280",
-    marginBottom: 2,
-  },
-  input: {
-    fontFamily: "Poppins-Regular",
-    fontSize: 14,
-    color: "#001328",
-    padding: 0,
-  },
-});

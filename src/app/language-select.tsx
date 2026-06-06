@@ -8,7 +8,6 @@ import { useState } from "react";
 import {
     FlatList,
     Image,
-    StyleSheet,
     Text,
     TouchableOpacity,
     View,
@@ -105,7 +104,7 @@ export default function LanguageSelectScreen() {
                 <View className="items-center mt-6">
                     <Image 
                         source={images.earth} 
-                        style={{ width: '100%', height: 100 }} 
+                        className="w-full h-[100px]" 
                         resizeMode="contain" 
                     />
                 </View>

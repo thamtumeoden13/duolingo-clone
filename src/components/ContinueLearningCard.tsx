@@ -9,40 +9,41 @@ interface ContinueLearningCardProps {
   onPress: () => void;
 }
 
-export function ContinueLearningCard({ languageName, level, unit, onPress }: ContinueLearningCardProps) {
+export function ContinueLearningCard({
+  languageName,
+  level,
+  unit,
+  onPress,
+}: ContinueLearningCardProps) {
   return (
-    <View className="mx-6 mt-6 rounded-[32px] overflow-hidden bg-[#6366F1]">
-      <View className="p-6 flex-row items-center justify-between">
-        <View className="flex-1 z-10">
-          <Text className="text-white/80 font-medium mb-1" style={{ fontFamily: "Poppins-Medium" }}>
+    <View className="flex-row bg-lingua-purple rounded-[20px] h-[160px] mb-6 overflow-hidden">
+      <View className="flex-1 py-5 pl-5 pr-2 justify-between">
+        <View>
+          <Text className="font-poppins text-[11px] text-white/75 mb-0.5">
             Continue learning
           </Text>
-          <Text className="text-white text-3xl font-bold mb-1" style={{ fontFamily: "Poppins-Bold" }}>
+          <Text className="font-poppins-bold text-[22px] text-white leading-7">
             {languageName}
           </Text>
-          <Text className="text-white/90 text-lg mb-6" style={{ fontFamily: "Poppins-Medium" }}>
-            {level} • {unit}
+          <Text className="font-poppins text-xs text-white/65 mt-0.5">
+            {level} · {unit}
           </Text>
-          
-          <TouchableOpacity 
-            onPress={onPress}
-            className="bg-white rounded-2xl py-3 px-8 self-start"
-          >
-            <Text className="text-indigo-600 font-bold text-lg" style={{ fontFamily: "Poppins-Bold" }}>
-              Continue
-            </Text>
-          </TouchableOpacity>
         </View>
-
-        <View className="absolute right-[-20] bottom-[-20]">
-          <Image 
-            source={images.palace} 
-            className="h-44 w-44" 
-            resizeMode="contain"
-            style={{ opacity: 0.9 }}
-          />
-        </View>
+        <TouchableOpacity
+          className="bg-white rounded-xl py-2 px-[22px] self-start"
+          activeOpacity={0.85}
+          onPress={onPress}
+        >
+          <Text className="font-poppins-semibold text-[13px] text-lingua-purple">
+            Continue
+          </Text>
+        </TouchableOpacity>
       </View>
+      <Image
+        source={images.palace}
+        className="w-[130px] h-[160px]"
+        resizeMode="cover"
+      />
     </View>
   );
 }

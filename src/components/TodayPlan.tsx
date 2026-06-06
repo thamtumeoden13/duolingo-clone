@@ -1,10 +1,13 @@
 import React from "react";
-import { View, Text, TouchableOpacity } from "react-native";
-import { Book, Headphones, Zap, CheckCircle2, Circle } from "lucide-react-native";
+import { View, Text, TouchableOpacity, StyleSheet } from "react-native";
+import { Ionicons } from "@expo/vector-icons";
+import { colors } from "@/constants/theme";
 
 interface PlanItem {
   id: string;
-  type: "lesson" | "conversation" | "vocabulary";
+  icon: keyof typeof Ionicons.glyphMap;
+  iconBg: string;
+  iconColor: string;
   title: string;
   subtitle: string;
   completed: boolean;
@@ -12,22 +15,28 @@ interface PlanItem {
 
 const PLAN_ITEMS: PlanItem[] = [
   {
-    id: "1",
-    type: "lesson",
+    id: "lesson",
+    icon: "book",
+    iconBg: "#EDE9FE",
+    iconColor: colors.primary.purple,
     title: "Lesson",
     subtitle: "At the café",
     completed: true,
   },
   {
-    id: "2",
-    type: "conversation",
+    id: "ai-conversation",
+    icon: "headset",
+    iconBg: "#EDE9FE",
+    iconColor: colors.primary.purple,
     title: "AI Conversation",
     subtitle: "Talk about your day",
     completed: false,
   },
   {
-    id: "3",
-    type: "vocabulary",
+    id: "new-words",
+    icon: "chatbubble-ellipses",
+    iconBg: "#FEE2E2",
+    iconColor: "#EF4444",
     title: "New words",
     subtitle: "10 words",
     completed: false,
@@ -36,50 +45,61 @@ const PLAN_ITEMS: PlanItem[] = [
 
 export function TodayPlan() {
   return (
-    <View className="mx-6 mt-8">
-      <View className="flex-row items-center justify-between mb-4">
-        <Text className="text-xl font-bold text-gray-800" style={{ fontFamily: "Poppins-Bold" }}>
-          Today&apos;s plan
+    <View>
+      <View className="flex-row items-center justify-between mb-3">
+        <Text className="font-poppins-semibold text-[17px] text-text-primary">
+          {"Today's plan"}
         </Text>
-        <TouchableOpacity>
-          <Text className="text-indigo-600 font-bold" style={{ fontFamily: "Poppins-Bold" }}>
+        <TouchableOpacity activeOpacity={0.7}>
+          <Text className="font-poppins-medium text-[13px] text-lingua-blue">
             View all
           </Text>
         </TouchableOpacity>
       </View>
 
-      <View className="gap-y-4">
-        {PLAN_ITEMS.map((item) => (
-          <View key={item.id} className="flex-row items-center justify-between">
-            <View className="flex-row items-center flex-1">
-              <View 
-                className={`h-14 w-14 rounded-2xl items-center justify-center ${
-                  item.type === "lesson" ? "bg-[#6366F1]" : 
-                  item.type === "conversation" ? "bg-[#818CF8]" : 
-                  "bg-[#F87171]"
-                }`}
+      <View
+        className="bg-white rounded-[20px] border border-border mb-4 overflow-hidden"
+        style={styles.planCardShadow}
+      >
+        {PLAN_ITEMS.map((item, index) => (
+          <View key={item.id}>
+            {index > 0 && <View className="h-px bg-border mx-4" />}
+            <View className="flex-row items-center px-4 py-[14px]">
+              <View
+                className="w-11 h-11 rounded-xl items-center justify-center"
+                style={{ backgroundColor: item.iconBg }}
               >
-                {item.type === "lesson" && <Book size={28} color="white" />}
-                {item.type === "conversation" && <Headphones size={28} color="white" />}
-                {item.type === "vocabulary" && <Zap size={28} color="white" />}
+                <Ionicons name={item.icon} size={20} color={item.iconColor} />
               </View>
-              <View className="ml-4">
-                <Text className="text-lg font-bold text-gray-800" style={{ fontFamily: "Poppins-Bold" }}>
+              <View className="flex-1 ml-3">
+                <Text className="font-poppins-semibold text-sm text-text-primary mb-0.5">
                   {item.title}
                 </Text>
-                <Text className="text-gray-500 font-medium" style={{ fontFamily: "Poppins-Medium" }}>
+                <Text className="font-poppins text-xs text-text-secondary">
                   {item.subtitle}
                 </Text>
               </View>
+              {item.completed ? (
+                <View className="w-[26px] h-[26px] rounded-full bg-lingua-blue items-center justify-center">
+                  <Ionicons name="checkmark" size={14} color="#fff" />
+                </View>
+              ) : (
+                <View className="w-[26px] h-[26px] rounded-full border-2 border-border" />
+              )}
             </View>
-            {item.completed ? (
-              <CheckCircle2 size={28} color="#6366F1" fill="#E0E7FF" />
-            ) : (
-              <Circle size={28} color="#D1D5DB" strokeWidth={1.5} />
-            )}
           </View>
         ))}
       </View>
     </View>
   );
 }
+
+const styles = StyleSheet.create({
+  planCardShadow: {
+    shadowColor: "#000",
+    shadowOffset: { width: 0, height: 2 },
+    shadowOpacity: 0.04,
+    shadowRadius: 6,
+    elevation: 2,
+  },
+});

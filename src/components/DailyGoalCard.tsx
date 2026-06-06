@@ -8,36 +8,33 @@ interface DailyGoalCardProps {
 }
 
 export function DailyGoalCard({ currentXP, goalXP }: DailyGoalCardProps) {
-  const progress = Math.min(currentXP / goalXP, 1);
+  const progress = goalXP > 0 ? Math.min((currentXP / goalXP) * 100, 100) : 0;
 
   return (
-    <View className="mx-6 mt-4 p-5 rounded-[32px] bg-[#FFF9F2] flex-row items-center justify-between border border-[#FFE8D1]/30">
-      <View className="flex-1 mr-4">
-        <Text className="text-gray-500 font-medium mb-1" style={{ fontFamily: "Poppins-Medium" }}>
+    <View className="flex-row items-center bg-[#FFF5E8] rounded-[20px] py-4 pl-5 pr-3 mb-4">
+      <View className="flex-1 pr-2">
+        <Text className="font-poppins text-xs text-text-secondary mb-1">
           Daily goal
         </Text>
-        <View className="flex-row items-baseline mb-3">
-          <Text className="text-3xl font-bold text-gray-800" style={{ fontFamily: "Poppins-Bold" }}>
+        <Text>
+          <Text className="font-poppins-bold text-[28px] text-text-primary leading-[34px]">
             {currentXP}
           </Text>
-          <Text className="text-gray-400 font-medium text-lg ml-1" style={{ fontFamily: "Poppins-Medium" }}>
-            / {goalXP} XP
+          <Text className="font-poppins text-sm text-text-secondary leading-[34px]">
+            {` / ${goalXP} XP`}
           </Text>
-        </View>
-        
-        {/* Progress Bar */}
-        <View className="h-2 w-full bg-gray-200/50 rounded-full overflow-hidden">
-          <View 
-            className="h-full bg-[#FF9500] rounded-full" 
-            style={{ width: `${progress * 100}%` }} 
+        </Text>
+        <View className="h-2 bg-border rounded mt-[10px] overflow-hidden">
+          <View
+            className="h-2 bg-streak rounded"
+            style={{ width: `${Math.round(progress)}%` as `${number}%` }}
           />
         </View>
       </View>
-
-      <Image 
-        source={images.treasure} 
-        className="h-20 w-20" 
-        resizeMode="contain" 
+      <Image
+        source={images.treasure}
+        className="w-20 h-20"
+        resizeMode="contain"
       />
     </View>
   );

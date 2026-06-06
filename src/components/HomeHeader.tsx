@@ -1,45 +1,63 @@
 import React from "react";
 import { View, Text, Image, TouchableOpacity } from "react-native";
-import { Bell } from "lucide-react-native";
+import { Ionicons } from "@expo/vector-icons";
 import { images } from "@/constants/images";
 import { Language } from "@/types/learning";
+import { colors } from "@/constants/theme";
 
 interface HomeHeaderProps {
   userDisplayName: string;
   selectedLanguage: Language | null;
   streak: number;
+  greeting: string;
+  onNotificationsPress?: () => void;
+  onSignOutPress?: () => void;
 }
 
-export function HomeHeader({ userDisplayName, selectedLanguage, streak }: HomeHeaderProps) {
+export function HomeHeader({
+  userDisplayName,
+  selectedLanguage,
+  streak,
+  greeting,
+  onNotificationsPress,
+  onSignOutPress,
+}: HomeHeaderProps) {
   return (
-    <View className="flex-row items-center justify-between px-6 py-4">
-      <View className="flex-row items-center">
-        <View className="h-10 w-10 overflow-hidden rounded-full border border-gray-100 bg-gray-50 items-center justify-center">
-          {selectedLanguage?.flag ? (
-            <Image
-              source={{ uri: selectedLanguage.flag }}
-              className="h-full w-full"
-              resizeMode="cover"
-            />
-          ) : (
-            <Text className="text-xl">🌐</Text>
-          )}
-        </View>
-        <Text className="ml-3 text-xl font-bold text-gray-800" style={{ fontFamily: "Poppins-Bold" }}>
-          Hola, {userDisplayName}! 👋
+    <View className="flex-row items-center justify-between mb-5">
+      <View className="flex-row items-center gap-[10px]">
+        {selectedLanguage ? (
+          <Image
+            source={{ uri: selectedLanguage.flag }}
+            className="w-[34px] h-[34px] rounded-full"
+          />
+        ) : (
+          <View className="w-[34px] h-[34px] rounded-full bg-surface" />
+        )}
+        <Text className="font-poppins-semibold text-base text-text-primary">
+          {greeting}, {userDisplayName}! 👋
         </Text>
       </View>
 
-      <View className="flex-row items-center">
-        <View className="flex-row items-center mr-4">
-          <Image source={images.streakFire} className="h-6 w-6" resizeMode="contain" />
-          <Text className="ml-1 text-lg font-bold text-gray-600" style={{ fontFamily: "Poppins-Bold" }}>
+      <View className="flex-row items-center gap-[14px]">
+        <View className="flex-row items-center gap-1">
+          <Image source={images.streakFire} className="w-[22px] h-[22px]" />
+          <Text className="font-poppins-semibold text-[15px] text-streak">
             {streak}
           </Text>
         </View>
-        <TouchableOpacity className="relative">
-          <Bell size={24} color="#1F2937" strokeWidth={2} />
-          <View className="absolute top-0 right-0 h-2 w-2 rounded-full bg-red-500 border border-white" />
+        <TouchableOpacity activeOpacity={0.7} onPress={onNotificationsPress}>
+          <Ionicons
+            name="notifications-outline"
+            size={24}
+            color={colors.neutral.textPrimary}
+          />
+        </TouchableOpacity>
+        <TouchableOpacity activeOpacity={0.7} onPress={onSignOutPress}>
+          <Ionicons
+            name="log-out-outline"
+            size={24}
+            color={colors.neutral.textPrimary}
+          />
         </TouchableOpacity>
       </View>
     </View>
