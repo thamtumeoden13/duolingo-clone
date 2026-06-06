@@ -59,7 +59,7 @@ export default function RootLayout() {
       <Stack.Screen name="(auth)" />
       <Stack.Screen name="language-select" />
       <Stack.Screen name="(tabs)" />
-      {/*<Stack.Screen name="lesson" />*/}
+      <Stack.Screen name="lesson/[lessonId]" options={{ animation: 'slide_from_bottom' }} />
     </Stack>
   );
 }

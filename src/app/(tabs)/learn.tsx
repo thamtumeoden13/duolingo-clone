@@ -31,11 +31,8 @@ export default function Learn() {
   const unitLessons = LESSONS.filter(l => currentUnit?.lessonIds.includes(l.id));
 
   const handleLessonPress = (lessonId: string) => {
-    // Navigate to the lesson details (practice/start)
-    router.push({
-      pathname: "/lesson",
-      params: { lessonId }
-    } as any);
+    // Navigate to the audio lesson screen
+    router.push(`/lesson/${lessonId}`);
   };
 
   return (
@@ -79,6 +76,7 @@ export default function Learn() {
         {/* Tab Switcher */}
         <View className="flex-row bg-gray-100 rounded-2.5xl p-1 mb-8">
             <TouchableOpacity 
+                key="tab-lessons"
                 onPress={() => setActiveTab("lessons")}
                 className={`flex-1 py-3 rounded-2xl items-center ${activeTab === "lessons" ? "bg-white shadow-sm" : ""}`}
             >
@@ -87,6 +85,7 @@ export default function Learn() {
                 </Text>
             </TouchableOpacity>
             <TouchableOpacity 
+                key="tab-practice"
                 onPress={() => setActiveTab("practice")}
                 className={`flex-1 py-3 rounded-2xl items-center ${activeTab === "practice" ? "bg-white shadow-sm" : ""}`}
             >
