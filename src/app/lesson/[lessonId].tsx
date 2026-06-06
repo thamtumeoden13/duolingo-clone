@@ -171,6 +171,18 @@ export default function AudioLessonScreen() {
   const [client, setClient] = useState<StreamVideoClient | null>(null);
   const [call, setCall] = useState<Call | null>(null);
   const [error, setError] = useState<string | null>(null);
+  const [agentStatus, setAgentStatus] = useState<'idle' | 'connecting' | 'connected' | 'failed'>('idle');
+  
+  // Use refs for cleanup to avoid effect re-runs
+  const agentSessionIdRef = React.useRef<string | null>(null);
+  const callIdRef = React.useRef<string | null>(null);
+  const callRef = React.useRef<Call | null>(null);
+  const clientRef = React.useRef<StreamVideoClient | null>(null);
+  const isInitialMount = React.useRef(true);
+
+  // Still keep these for UI if needed, but refs will handle the logic
+  const [agentSessionId, setAgentSessionId] = useState<string | null>(null);
+  const [callId, setCallId] = useState<string | null>(null);
 
   const lesson = LESSONS.find((l) => l.id === lessonId);
 
@@ -185,9 +197,12 @@ export default function AudioLessonScreen() {
           return;
         }
 
-        const response = await fetch("/api/stream/token", {
+        const tokenResponse = await fetch("/api/stream/token", {
           method: "POST",
-          headers: { "Content-Type": "application/json" },
+          headers: { 
+            "Content-Type": "application/json",
+            "Authorization": `Bearer ${session.access_token}`
+          },
           body: JSON.stringify({
             userId: session.user.id,
             lessonId,
@@ -195,8 +210,12 @@ export default function AudioLessonScreen() {
           }),
         });
 
-        const data = await response.json();
-        if (data.error) throw new Error(data.error);
+        if (!tokenResponse.ok) {
+          const errorData = await tokenResponse.json().catch(() => ({}));
+          throw new Error(errorData.error || `Failed to get Stream token (${tokenResponse.status})`);
+        }
+
+        const data = await tokenResponse.json();
 
         if (!isMounted) return;
 
@@ -210,10 +229,80 @@ export default function AudioLessonScreen() {
         });
 
         const audioCall = videoClient.call("audio_room", data.callId);
-        await audioCall.join({ create: true });
+        await audioCall.join({ 
+          create: true,
+          data: {
+            custom: {
+              lesson_title: lesson?.title!,
+              language: selectedLanguage,
+              system_prompt: lesson?.aiTeacherPrompt.systemPrompt,
+              intro_message: lesson?.aiTeacherPrompt.introMessage,
+              vocabulary: lesson?.vocabulary,
+              phrases: lesson?.phrases,
+              goals: lesson?.goals,
+            }
+          }
+        });
 
         setClient(videoClient);
         setCall(audioCall);
+        setCallId(data.callId);
+        
+        clientRef.current = videoClient;
+        callRef.current = audioCall;
+        callIdRef.current = data.callId;
+
+        // Start the AI Agent
+        setAgentStatus('connecting');
+        try {
+          const agentResponse = await fetch("/api/stream/token", {
+            method: "POST",
+            headers: { 
+              "Content-Type": "application/json",
+              "Authorization": `Bearer ${session.access_token}`
+            },
+            body: JSON.stringify({
+              action: "agent_start",
+              callId: data.callId,
+              callType: "audio_room",
+              userId: session.user.id,
+              lessonId,
+              languageCode: selectedLanguage,
+            }),
+          });
+          
+          const agentContentType = agentResponse.headers.get("content-type");
+          if (!agentResponse.ok) {
+            let errorMsg = `Agent start failed (${agentResponse.status})`;
+            if (agentContentType && agentContentType.includes("application/json")) {
+              const errorData = await agentResponse.json();
+              errorMsg = errorData.error || errorData.detail || errorMsg;
+            }
+            throw new Error(errorMsg);
+          }
+
+          if (!agentContentType || !agentContentType.includes("application/json")) {
+            throw new Error("Agent API did not return JSON");
+          }
+
+          const agentData = await agentResponse.json();
+          if (agentData.error) throw new Error(agentData.error);
+          
+          if (isMounted) {
+            setAgentSessionId(agentData.session_id);
+            setAgentStatus('connected');
+            agentSessionIdRef.current = agentData.session_id;
+          }
+        } catch (agentErr: any) {
+          console.error("Failed to start agent:", agentErr);
+          if (isMounted) {
+            setAgentStatus('failed');
+            // If it's a critical error (like 404), we might want to show it in the main error state
+            if (agentErr.message?.includes("404")) {
+               setError(agentErr.message);
+            }
+          }
+        }
       } catch (err: any) {
         console.error(err);
         if (isMounted) setError(err.message || "Failed to join call");
@@ -226,31 +315,73 @@ export default function AudioLessonScreen() {
 
     return () => {
       isMounted = false;
-    };
-  }, [lessonId, selectedLanguage]);
+      
+      const cleanup = async () => {
+        const { data: { session } } = await supabase.auth.getSession();
+        const sId = agentSessionIdRef.current;
+        const cId = callIdRef.current;
 
-  useEffect(() => {
-    return () => {
-      if (call) {
-        call.leave().catch((err) => {
+        if (sId && cId && session?.access_token) {
+          fetch("/api/stream/token", {
+            method: "POST",
+            headers: { 
+              "Content-Type": "application/json",
+              "Authorization": `Bearer ${session.access_token}`
+            },
+            body: JSON.stringify({
+              action: "agent_stop",
+              callId: cId,
+              sessionId: sId,
+              userId: session.user.id,
+            }),
+          }).catch((err) => console.error('Error stopping agent session:', err));
+        }
+      };
+      cleanup();
+
+      if (callRef.current) {
+        callRef.current.leave().catch((err) => {
           if (err.message?.includes('already been left')) {
             return;
           }
           console.error('Error leaving call:', err);
         });
       }
-      if (client) {
-        client.disconnectUser().catch((err) => {
+      if (clientRef.current) {
+        clientRef.current.disconnectUser().catch((err) => {
           console.error('Error disconnecting user:', err);
         });
       }
     };
-  }, [call, client]);
+  }, []); // Only run once on mount
 
   const handleEndCall = useCallback(async () => {
-    if (call) {
+    const { data: { session } } = await supabase.auth.getSession();
+    const sId = agentSessionIdRef.current;
+    const cId = callIdRef.current;
+
+    if (sId && cId && session?.access_token) {
       try {
-        await call.leave();
+        await fetch("/api/stream/token", {
+          method: "POST",
+          headers: { 
+            "Content-Type": "application/json",
+            "Authorization": `Bearer ${session.access_token}`
+          },
+          body: JSON.stringify({
+            action: "agent_stop",
+            callId: cId,
+            sessionId: sId,
+            userId: session.user.id,
+          }),
+        });
+      } catch (err) {
+        console.error('Error stopping agent session in handleEndCall:', err);
+      }
+    }
+    if (callRef.current) {
+      try {
+        await callRef.current.leave();
       } catch (err: any) {
         if (!err.message?.includes('already been left')) {
           console.error('Error leaving call in handleEndCall:', err);
@@ -258,7 +389,7 @@ export default function AudioLessonScreen() {
       }
     }
     router.back();
-  }, [call, router]);
+  }, [router]);
 
   if (!lesson) {
     return (
@@ -305,9 +436,15 @@ export default function AudioLessonScreen() {
                 AI Teacher
               </Text>
               <View className="flex-row items-center">
-                <View className={`w-2.5 h-2.5 rounded-full mr-1.5 ${client ? 'bg-green-500' : 'bg-gray-300'}`} />
+                <View className={`w-2.5 h-2.5 rounded-full mr-1.5 ${
+                  agentStatus === 'connected' ? 'bg-green-500' : 
+                  agentStatus === 'connecting' ? 'bg-yellow-500' : 
+                  agentStatus === 'failed' ? 'bg-red-500' : 'bg-gray-300'
+                }`} />
                 <Text className="text-xs font-poppins text-text-secondary">
-                  {client ? 'Online' : 'Offline'}
+                  {agentStatus === 'connected' ? 'Online' : 
+                   agentStatus === 'connecting' ? 'Connecting...' : 
+                   agentStatus === 'failed' ? 'Connection Failed' : 'Offline'}
                 </Text>
               </View>
             </View>

@@ -12,9 +12,9 @@ from getstream.models import MemberRequest  # noqa: E402
 from openai.types.realtime.realtime_transcription_session_audio_input_turn_detection_param import ServerVad  # noqa: E402
 from vision_agents.core import Agent, AgentLauncher, User, Runner  # noqa: E402
 from vision_agents.core.instructions import Instructions  # noqa: E402
-from vision_agents.core.llm.events import (  # noqa: E402
-    RealtimeAgentSpeechTranscriptionEvent,
-    RealtimeUserSpeechTranscriptionEvent,
+from vision_agents.core.llm.realtime import (  # noqa: E402
+    RealtimeAgentTranscript,
+    RealtimeUserTranscript,
 )
 from vision_agents.plugins import getstream, openai  # noqa: E402
 
@@ -51,10 +51,17 @@ def _require_env(var_name: str) -> None:
         raise RuntimeError(f"Missing required environment variable: {var_name}")
 
 def _language_name_from_call_id(call_id: str) -> Optional[str]:
-    # call_id format: lesson-{langCode}-lesson-{n}-{userId}
+    # v10 format: l-{userId}-{random}
+    # new format: l-{langCode}-{lessonId}-{userId}
+    # old format: lesson-{langCode}-lesson-{n}-{userId}
     parts = call_id.split("-")
-    if len(parts) >= 2 and parts[0] == "lesson":
-        return LANGUAGE_NAMES.get(parts[1])
+    if len(parts) >= 2:
+        if parts[0] == "l":
+            # If it's the v10 format, the second part is the start of the UUID, not langCode.
+            # However, we now pass language in custom data, so this is just a fallback.
+            return LANGUAGE_NAMES.get(parts[1])
+        elif parts[0] == "lesson":
+            return LANGUAGE_NAMES.get(parts[1])
     return None
 
 
@@ -66,16 +73,20 @@ async def create_agent(**kwargs) -> Agent:
             # than waiting for semantic speech intent detection (~500 ms+).
             # This means the agent stops speaking almost immediately when the user
             # presses the push-and-hold mic button, before they have said a word.
+            # 
+            # Note: We use gpt-4o-mini-realtime-preview for lower costs while
+            # keeping voice capabilities.
             realtime_session={
                 "type": "realtime",
+                "model": "gpt-4o-mini-realtime-preview",
                 "audio": {
                     "input": {
                         "transcription": {"model": "gpt-4o-mini-transcribe"},
                         "turn_detection": ServerVad(
                             type="server_vad",
-                            threshold=0.4,         # low enough to catch ambient noise on mic open
-                            prefix_padding_ms=200,  # capture brief audio before speech onset
-                            silence_duration_ms=400, # commit turn after 400 ms of silence
+                            threshold=0.5,         # increased to reduce noise triggers
+                            prefix_padding_ms=300,  # capture slightly more audio before speech
+                            silence_duration_ms=600, # wait a bit longer to confirm turn end
                             interrupt_response=True, # stop agent audio the moment VAD fires
                         ),
                     }
@@ -126,7 +137,7 @@ async def join_call(agent: Agent, call_type: str, call_id: str, **kwargs) -> Non
     partial_user: list[str] = []
 
     async def on_transcript_event(event) -> None:
-        if isinstance(event, RealtimeAgentSpeechTranscriptionEvent):
+        if isinstance(event, RealtimeAgentTranscript):
             if event.mode == "delta" and event.text:
                 partial_agent.append(event.text)
                 try:
@@ -140,7 +151,7 @@ async def join_call(agent: Agent, call_type: str, call_id: str, **kwargs) -> Non
             elif event.mode == "final":
                 partial_agent.clear()
 
-        elif isinstance(event, RealtimeUserSpeechTranscriptionEvent):
+        elif isinstance(event, RealtimeUserTranscript):
             if event.mode == "delta" and event.text:
                 partial_user.append(event.text)
                 try:
