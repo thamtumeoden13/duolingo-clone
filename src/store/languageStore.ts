@@ -5,6 +5,7 @@ import AsyncStorage from "@react-native-async-storage/async-storage";
 interface LanguageState {
   selectedLanguage: string | null;
   setSelectedLanguage: (languageId: string) => void;
+  clearLanguage: () => void;
 }
 
 export const useLanguageStore = create<LanguageState>()(
@@ -12,6 +13,7 @@ export const useLanguageStore = create<LanguageState>()(
     (set) => ({
       selectedLanguage: null,
       setSelectedLanguage: (languageId) => set({ selectedLanguage: languageId }),
+      clearLanguage: () => set({ selectedLanguage: null }),
     }),
     {
       name: "language-storage",

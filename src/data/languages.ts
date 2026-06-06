@@ -2,6 +2,14 @@ import { Language } from "@/types/learning";
 
 export const LANGUAGES: Language[] = [
   {
+    code: "en",
+    name: "English",
+    nativeName: "English",
+    flag: "https://flagcdn.com/w320/us.png", // Hoặc gb.png cho cờ Anh
+    color: "#007AFF",
+    learners: "52.4M",
+  },
+  {
     code: "es",
     name: "Spanish",
     nativeName: "Español",

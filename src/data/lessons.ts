@@ -1,6 +1,178 @@
 import { Lesson } from '@/types/learning';
 
 export const LESSONS: Lesson[] = [
+  // ─── English ───────────────────────────────────────────────────────────────
+
+  {
+    id: 'en-lesson-1',
+    unitId: 'en-unit-1',
+    title: 'Hello! Greetings',
+    description: 'Learn basic English greetings and farewells',
+    icon: '👋',
+    xpReward: 10,
+    goals: [
+      { description: 'Learn 5 greeting words', xpReward: 5 },
+      { description: 'Complete all activities', xpReward: 5 },
+    ],
+    vocabulary: [
+      { word: 'Hello', translation: 'Xin chào', pronunciation: 'heh-LOH', emoji: '👋' },
+      { word: 'Goodbye', translation: 'Tạm biệt', pronunciation: 'ɡʊd-BAɪ', emoji: '👋' },
+      { word: 'Morning', translation: 'Buổi sáng', pronunciation: 'MAWR-ning', emoji: '🌅' },
+      { word: 'Afternoon', translation: 'Buổi chiều', pronunciation: 'af-ter-NOON', emoji: '☀️' },
+      { word: 'Night', translation: 'Buổi đêm', pronunciation: 'naɪt', emoji: '🌙' },
+    ],
+    phrases: [
+      { text: 'How are you?', translation: 'Bạn khỏe không?', pronunciation: 'haʊ aar yoo' },
+      { text: 'I am fine, thank you.', translation: 'Tôi khỏe, cảm ơn.', pronunciation: 'aɪ æm faɪn, θæŋk yoo' },
+      { text: 'Nice to meet you.', translation: 'Rất vui được gặp bạn.', pronunciation: 'naɪs too meet yoo' },
+    ],
+    activities: [
+      {
+        id: 'en-lesson-1-act-1',
+        type: 'multiple-choice',
+        question: 'What does "Hello" mean?',
+        correctAnswer: 'Xin chào',
+        options: ['Xin chào', 'Tạm biệt', 'Cảm ơn', 'Làm ơn'],
+      },
+      {
+        id: 'en-lesson-1-act-2',
+        type: 'multiple-choice',
+        question: 'How do you say "Buổi sáng" in English?',
+        correctAnswer: 'Morning',
+        options: ['Night', 'Morning', 'Afternoon', 'Goodbye'],
+      },
+    ],
+    aiTeacherPrompt: {
+      systemPrompt:
+          "You're Sarah, an enthusiastic English teacher in an interactive voice lesson. Introduce ONE word at a time: say it, give the meaning, add a pronunciation tip, then END YOUR TURN. Wait for the student. Keep it simple. Stay strictly within greetings and farewells.",
+      introMessage:
+          "Hello! I'm Sarah, your English teacher. Let's start our first lesson with some basic greetings!",
+      topics: ['greetings', 'farewells', 'asking how someone is'],
+    },
+  },
+
+  {
+    id: 'en-lesson-2',
+    unitId: 'en-unit-1',
+    title: 'Introductions',
+    description: 'Introduce yourself and ask for others\' names',
+    icon: '🙋',
+    xpReward: 10,
+    goals: [
+      { description: 'Say your name in English', xpReward: 5 },
+      { description: 'Ask someone\'s name', xpReward: 5 },
+    ],
+    vocabulary: [
+      { word: 'Name', translation: 'Tên', pronunciation: 'neɪm', emoji: '🏷️' },
+      { word: 'From', translation: 'Đến từ', pronunciation: 'frɒm', emoji: '📍' },
+      { word: 'Student', translation: 'Học sinh', pronunciation: 'STOO-dent', emoji: '🎓' },
+    ],
+    phrases: [
+      { text: 'What is your name?', translation: 'Tên bạn là gì?', pronunciation: 'wɒt ɪz yɔː neɪm' },
+      { text: 'My name is Peter.', translation: 'Tên tôi là Peter.', pronunciation: 'maɪ neɪm ɪz PEE-ter' },
+      { text: 'Where are you from?', translation: 'Bạn từ đâu đến?', pronunciation: 'weər aar yoo frɒm' },
+    ],
+    activities: [
+      {
+        id: 'en-lesson-2-act-1',
+        type: 'multiple-choice',
+        question: 'How do you say "Tên tôi là" in English?',
+        correctAnswer: 'My name is',
+        options: ['My name is', 'I from', 'What is', 'Nice to'],
+      },
+    ],
+    aiTeacherPrompt: {
+      systemPrompt: "You're Sarah, teaching English introductions. Focus on 'My name is' and 'Where are you from'.",
+      introMessage: "Hi there! Ready to learn how to introduce yourself in English?",
+      topics: ['introductions', 'names', 'origin'],
+    },
+  },
+
+  {
+    id: 'en-lesson-3',
+    unitId: 'en-unit-1',
+    title: 'Numbers 1–10',
+    description: 'Learn to count from one to ten',
+    icon: '🔢',
+    xpReward: 10,
+    goals: [{ description: 'Learn numbers 1 to 10', xpReward: 10 }],
+    vocabulary: [
+      { word: 'One', translation: '1', pronunciation: 'wʌn', emoji: '1️⃣' },
+      { word: 'Two', translation: '2', pronunciation: 'too', emoji: '2️⃣' },
+      { word: 'Three', translation: '3', pronunciation: 'θree', emoji: '3️⃣' },
+      { word: 'Four', translation: '4', pronunciation: 'fɔːr', emoji: '4️⃣' },
+      { word: 'Five', translation: '5', pronunciation: 'faɪv', emoji: '5️⃣' },
+      { word: 'Six', translation: '6', pronunciation: 'sɪks', emoji: '6️⃣' },
+      { word: 'Seven', translation: '7', pronunciation: 'SEV-ən', emoji: '7️⃣' },
+      { word: 'Eight', translation: '8', pronunciation: 'eɪt', emoji: '8️⃣' },
+      { word: 'Nine', translation: '9', pronunciation: 'naɪn', emoji: '9️⃣' },
+      { word: 'Ten', translation: '10', pronunciation: 'ten', emoji: '🔟' },
+    ],
+    phrases: [
+      { text: 'How many?', translation: 'Bao nhiêu?', pronunciation: 'haʊ MEN-ee' },
+    ],
+    activities: [],
+    aiTeacherPrompt: {
+      systemPrompt: "You're Sarah, teaching English numbers 1-10.",
+      introMessage: "Let's count! One, two, three... Are you ready?",
+      topics: ['numbers', 'counting'],
+    },
+  },
+
+  {
+    id: 'en-lesson-4',
+    unitId: 'en-unit-1',
+    title: 'Colors',
+    description: 'Learn basic colors in English',
+    icon: '🎨',
+    xpReward: 10,
+    goals: [],
+    vocabulary: [
+      { word: 'Red', translation: 'Đỏ', pronunciation: 'red', emoji: '🔴' },
+      { word: 'Blue', translation: 'Xanh dương', pronunciation: 'bloo', emoji: '🔵' },
+      { word: 'Green', translation: 'Xanh lá', pronunciation: 'ɡreen', emoji: '🟢' },
+      { word: 'Yellow', translation: 'Vàng', pronunciation: 'YEL-oh', emoji: '🟡' },
+      { word: 'Black', translation: 'Đen', pronunciation: 'blæk', emoji: '⚫' },
+      { word: 'White', translation: 'Trắng', pronunciation: 'waɪt', emoji: '⚪' },
+    ],
+    phrases: [
+      { text: 'What color is it?', translation: 'Nó là màu gì?', pronunciation: 'wɒt KUL-ər ɪz ɪt' },
+    ],
+    activities: [],
+    aiTeacherPrompt: {
+      systemPrompt: "You're Sarah, teaching colors in English.",
+      introMessage: "Colors are everywhere! Let's learn their names in English.",
+      topics: ['colors'],
+    },
+  },
+
+  {
+    id: 'en-lesson-5',
+    unitId: 'en-unit-1',
+    title: 'Food & Drinks',
+    description: 'Common food and drink items',
+    icon: '🍕',
+    xpReward: 15,
+    goals: [],
+    vocabulary: [
+      { word: 'Water', translation: 'Nước', pronunciation: 'WAW-tər', emoji: '💧' },
+      { word: 'Bread', translation: 'Bánh mì', pronunciation: 'bred', emoji: '🍞' },
+      { word: 'Milk', translation: 'Sữa', pronunciation: 'mɪlk', emoji: '🥛' },
+      { word: 'Apple', translation: 'Táo', pronunciation: 'AP-əl', emoji: '🍎' },
+      { word: 'Coffee', translation: 'Cà phê', pronunciation: 'KAW-fee', emoji: '☕' },
+    ],
+    phrases: [
+      { text: 'I drink water.', translation: 'Tôi uống nước.', pronunciation: 'aɪ drɪŋk WAW-tər' },
+      { text: 'I eat an apple.', translation: 'Tôi ăn một quả táo.', pronunciation: 'aɪ eet æn AP-əl' },
+    ],
+    activities: [],
+    aiTeacherPrompt: {
+      systemPrompt: "You're Sarah, teaching food and drink vocabulary.",
+      introMessage: "I'm hungry! Let's learn some words for food and drinks.",
+      topics: ['food', 'drinks'],
+    },
+  },
+
   // ─── Spanish ───────────────────────────────────────────────────────────────
 
   {
@@ -177,6 +349,81 @@ export const LESSONS: Lesson[] = [
       introMessage:
           "¡Hola! Today we're counting in Spanish — uno, dos, tres — ready to try? Let's go!",
       topics: ['numbers 1-10', 'counting', 'how many'],
+    },
+  },
+
+  {
+    id: 'es-lesson-4',
+    unitId: 'es-unit-1',
+    title: 'Colors',
+    description: 'Learn basic colors in Spanish',
+    icon: '🎨',
+    xpReward: 10,
+    goals: [
+      { description: 'Learn 6 colors in Spanish', xpReward: 6 },
+      { description: 'Complete all activities', xpReward: 4 },
+    ],
+    vocabulary: [
+      { word: 'Rojo', translation: 'Red', pronunciation: 'ROH-hoh', emoji: '🔴' },
+      { word: 'Azul', translation: 'Blue', pronunciation: 'ah-SOOL', emoji: '🔵' },
+      { word: 'Verde', translation: 'Green', pronunciation: 'BEHR-deh', emoji: '🟢' },
+      { word: 'Amarillo', translation: 'Yellow', pronunciation: 'ah-mah-REE-yoh', emoji: '🟡' },
+      { word: 'Negro', translation: 'Black', pronunciation: 'NEH-groh', emoji: '⚫' },
+      { word: 'Blanco', translation: 'White', pronunciation: 'BLAHN-koh', emoji: '⚪' },
+    ],
+    phrases: [
+      { text: '¿De qué color es esto?', translation: 'What color is this?', pronunciation: 'deh keh koh-LOHR ehs EHS-toh' },
+      { text: 'Es rojo.', translation: 'It is red.', pronunciation: 'ehs ROH-hoh' },
+    ],
+    activities: [
+      {
+        id: 'es-lesson-4-act-1',
+        type: 'multiple-choice',
+        question: 'What does "azul" mean?',
+        correctAnswer: 'Blue',
+        options: ['Red', 'Blue', 'Green', 'Yellow'],
+      },
+      {
+        id: 'es-lesson-4-act-2',
+        type: 'multiple-choice',
+        question: 'How do you say "green" in Spanish?',
+        correctAnswer: 'Verde',
+        options: ['Rojo', 'Azul', 'Verde', 'Amarillo'],
+      },
+    ],
+    aiTeacherPrompt: {
+      systemPrompt: "You're Luna, a lively Spanish teacher teaching colors.",
+      introMessage: "¡Hola! Let's learn colors in Spanish!",
+      topics: ['colors'],
+    },
+  },
+
+  {
+    id: 'es-lesson-5',
+    unitId: 'es-unit-1',
+    title: 'Food & Drinks',
+    description: 'Learn vocabulary for food and drinks in Spanish',
+    icon: '🍕',
+    xpReward: 15,
+    goals: [
+      { description: 'Learn 5 food and drink words', xpReward: 8 },
+    ],
+    vocabulary: [
+      { word: 'Pan', translation: 'Bread', pronunciation: 'PAHN', emoji: '🍞' },
+      { word: 'Leche', translation: 'Milk', pronunciation: 'LEH-cheh', emoji: '🥛' },
+      { word: 'Agua', translation: 'Water', pronunciation: 'AH-gwah', emoji: '💧' },
+      { word: 'Fruta', translation: 'Fruit', pronunciation: 'FROO-tah', emoji: '🍎' },
+      { word: 'Queso', translation: 'Cheese', pronunciation: 'KEH-soh', emoji: '🧀' },
+    ],
+    phrases: [
+      { text: 'Yo como pan.', translation: 'I eat bread.', pronunciation: 'yoh KOH-moh pahn' },
+      { text: 'Yo bebo agua.', translation: 'I drink water.', pronunciation: 'yoh BEH-boh AH-gwah' },
+    ],
+    activities: [],
+    aiTeacherPrompt: {
+      systemPrompt: "You're Luna, teaching food and drinks.",
+      introMessage: "¡Hola! Today we talk about comida y bebida!",
+      topics: ['food', 'drinks'],
     },
   },
 
@@ -1060,7 +1307,6 @@ export const LESSONS: Lesson[] = [
       topics: ['greetings', 'politeness', 'basic responses'],
     },
   },
-
   // ─── Chinese ───────────────────────────────────────────────────────────────
 
   {

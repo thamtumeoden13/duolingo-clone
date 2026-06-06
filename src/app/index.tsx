@@ -1,18 +1,27 @@
-import { Redirect } from "expo-router";
+import {Redirect, Link, router} from "expo-router";
 import { useEffect, useState } from "react";
-import { ActivityIndicator, View } from "react-native";
+import { ActivityIndicator, View, Text, TouchableOpacity } from "react-native";
 
 import { useLanguageStore } from "@/store/languageStore";
 import { supabase } from "@/lib/supabase";
 import { Session } from "@supabase/supabase-js";
+import { SafeAreaView } from "react-native-safe-area-context";
 
 export default function Index() {
   const [session, setSession] = useState<Session | null>(null);
   const [isAuthLoaded, setIsAuthLoaded] = useState(false);
-  const { selectedLanguage } = useLanguageStore();
+  const { selectedLanguage, clearLanguage } = useLanguageStore();
   const [languageHydrated, setLanguageHydrated] = useState(
       useLanguageStore.persist.hasHydrated()
   );
+
+  const handleClearStorage = async () => {
+    await clearLanguage();
+    // Also clearing entire AsyncStorage as requested for "clear async storage"
+    const AsyncStorage = (await import("@react-native-async-storage/async-storage")).default;
+    await AsyncStorage.clear();
+    router.replace("/language-select");
+  };
 
   useEffect(() => {
     supabase.auth.getSession().then(({ data: { session } }) => {
@@ -36,14 +45,11 @@ export default function Index() {
     );
   }
 
-  console.log("Session:", session);
-
   if (!session) {
     return <Redirect href="/onboarding" />;
   }
 
-  console.log("Selected language:", selectedLanguage);
-
+  // If we have a session but no language, redirect to language selection
   if (!selectedLanguage) {
     return <Redirect href="/language-select" />;
   }

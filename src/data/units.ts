@@ -7,7 +7,15 @@ export const UNITS: Unit[] = [
     title: 'Greetings & Basics',
     description: 'Start your Spanish journey with everyday phrases',
     order: 1,
-    lessonIds: ['es-lesson-1', 'es-lesson-2', 'es-lesson-3'],
+    lessonIds: ['es-lesson-1', 'es-lesson-2', 'es-lesson-3', 'es-lesson-4', 'es-lesson-5'],
+  },
+  {
+    id: 'es-unit-2',
+    languageCode: 'es',
+    title: 'Daily Life',
+    description: 'Talk about your routine and everyday activities',
+    order: 2,
+    lessonIds: ['es-lesson-6'],
   },
   {
     id: 'fr-unit-1',
@@ -39,7 +47,7 @@ export const UNITS: Unit[] = [
     title: '안녕하세요! Korean Basics',
     description: 'Learn the essentials of Korean greetings and introductions',
     order: 1,
-    lessonIds: ['ko-lesson-1'],
+    lessonIds: ['ko-lesson-1', 'ko-lesson-2', 'ko-lesson-3', 'ko-lesson-4', 'ko-lesson-5'],
   },
   {
     id: 'zh-unit-1',
@@ -47,6 +55,6 @@ export const UNITS: Unit[] = [
     title: '你好! Chinese Basics',
     description: 'Master basic Chinese greetings and self-introductions',
     order: 1,
-    lessonIds: ['zh-lesson-1'],
+    lessonIds: ['zh-lesson-1', 'zh-lesson-2', 'zh-lesson-3', 'zh-lesson-4', 'zh-lesson-5'],
   },
 ];

@@ -10,7 +10,6 @@ import {
     Image,
     StyleSheet,
     Text,
-    TextInput,
     TouchableOpacity,
     View,
 } from "react-native";
@@ -19,131 +18,86 @@ import { SafeAreaView } from "react-native-safe-area-context";
 export default function LanguageSelectScreen() {
     const { setSelectedLanguage } = useLanguageStore();
     const [selectedCode, setSelectedCode] = useState<string>(LANGUAGES[0].code);
-    const [search, setSearch] = useState("");
-
-    const filtered = LANGUAGES.filter((lang) =>
-        lang.name.toLowerCase().includes(search.toLowerCase())
-    );
 
     const renderItem = ({ item }: { item: Language }) => {
         const isSelected = item.code === selectedCode;
         return (
             <TouchableOpacity
                 onPress={() => setSelectedCode(item.code)}
-                className={`flex-row items-center py-3.5 px-3.5 bg-white border-[1.5px] rounded-[14px] ${isSelected ? "bg-[rgba(108,78,245,0.08)] border-lingua-purple" : "border-transparent"}`}
+                className={`flex-row items-center p-4 mb-3 bg-white border-2 rounded-2xl ${
+                    isSelected ? "border-lingua-purple" : "border-gray-100"
+                }`}
                 activeOpacity={0.8}
             >
-                <Image source={{ uri: item.flag }} style={styles.flag} />
-                <View className="flex-1 ml-3">
-                    <Text className="font-poppins-semibold text-base text-text-primary">
+                <View className="w-12 h-12 rounded-full overflow-hidden border border-gray-100 items-center justify-center bg-gray-50">
+                    <Image source={{ uri: item.flag }} className="w-full h-full" resizeMode="cover" />
+                </View>
+                <View className="flex-1 ml-4">
+                    <Text className="h4 text-text-primary">
                         {item.name}
                     </Text>
                     <Text className="body-sm text-text-secondary">
                         {item.learners} learners
                     </Text>
                 </View>
-                {isSelected ? (
-                    <View className="w-6.5 h-6.5 rounded-full bg-lingua-purple items-center justify-center">
-                        <Ionicons name="checkmark" size={14} color="#fff" />
+                {isSelected && (
+                    <View className="w-6 h-6 rounded-full bg-lingua-purple items-center justify-center">
+                        <Ionicons name="checkmark" size={16} color="#fff" />
                     </View>
-                ) : (
-                    <Ionicons name="chevron-forward" size={20} color="#9ca3af" />
                 )}
             </TouchableOpacity>
         );
     };
 
+    const handleContinue = () => {
+        setSelectedLanguage(selectedCode as LanguageCode);
+        router.replace("/");
+    };
+
     return (
         <SafeAreaView style={{ flex: 1, backgroundColor: "#fff" }}>
             {/* Header */}
-            <View className="flex-row items-center px-4 py-3">
+            <View className="flex-row items-center px-4 py-4">
                 <TouchableOpacity
                     onPress={() => router.back()}
-                    className="w-8 h-8 items-center justify-center"
+                    className="w-10 h-10 items-center justify-center rounded-xl border border-gray-100"
                 >
-                    <Ionicons name="chevron-back" size={24} color="#001328" />
+                    <Ionicons name="close" size={24} color="#001328" />
                 </TouchableOpacity>
-                <Text className="flex-1 text-center font-poppins-semibold text-lg text-text-primary">
-                    Choose a language
+                <Text className="flex-1 text-center h3">
+                    I want to learn...
                 </Text>
-                <View className="w-8" />
+                <View className="w-10" />
             </View>
-
-            {/* Search */}
-            <View className="px-4 mb-4">
-                <View className="flex-row items-center bg-surface rounded-2xl px-4 py-3">
-                    <Ionicons name="search-outline" size={18} color="#9ca3af" />
-                    <TextInput
-                        style={styles.searchInput}
-                        placeholder="Search languages"
-                        placeholderTextColor="#9ca3af"
-                        value={search}
-                        onChangeText={setSearch}
-                    />
-                </View>
-            </View>
-
-            {/* Popular label */}
-            <Text className="px-4 font-poppins-semibold text-base text-text-primary mb-2">
-                Popular
-            </Text>
 
             {/* Language list */}
             <FlatList
-                data={filtered}
+                data={LANGUAGES}
                 keyExtractor={(item) => item.code}
                 renderItem={renderItem}
-                contentContainerStyle={styles.listContent}
-                ItemSeparatorComponent={() => (
-                    <View className="h-px bg-gray-200" />
-                )}
+                contentContainerStyle={{ paddingHorizontal: 20, paddingTop: 10, pb: 140 }}
+                showsVerticalScrollIndicator={false}
             />
 
-            {/* Confirm button */}
-            <View className="px-4 pt-3 pb-3">
+            {/* Bottom Container */}
+            <View className="absolute bottom-0 left-0 right-0 bg-white px-5 pt-4 pb-8 border-t border-gray-100">
                 <TouchableOpacity
-                    className="bg-lingua-purple rounded-2xl items-center py-4"
+                    className="bg-lingua-purple rounded-2xl items-center py-4 shadow-sm"
                     activeOpacity={0.85}
-                    testID="language-confirm-button"
-                    onPress={() => {
-                        const selectedLang = LANGUAGES.find((l) => l.code === selectedCode);
-                        setSelectedLanguage(selectedCode as LanguageCode);
-                        router.replace("/");
-                    }}
+                    onPress={handleContinue}
                 >
-                    <Text className="font-poppins-semibold text-base text-white">
-                        Continue
+                    <Text className="font-poppins-semibold text-white text-base">
+                        CONTINUE
                     </Text>
                 </TouchableOpacity>
+                <View className="items-center mt-6">
+                    <Image 
+                        source={images.earth} 
+                        style={{ width: '100%', height: 100 }} 
+                        resizeMode="contain" 
+                    />
+                </View>
             </View>
-
-            {/* Earth image */}
-            <Image source={images.earth} style={styles.earthImage} resizeMode="cover" />
         </SafeAreaView>
     );
 }
-
-const styles = StyleSheet.create({
-    flag: {
-        width: 44,
-        height: 44,
-        borderRadius: 22,
-        borderWidth: 1,
-        borderColor: "#e5e7eb",
-    },
-    searchInput: {
-        flex: 1,
-        marginLeft: 8,
-        fontFamily: "Poppins-Regular",
-        fontSize: 14,
-        color: "#001328",
-        padding: 0,
-    },
-    listContent: {
-        paddingHorizontal: 16,
-    },
-    earthImage: {
-        width: "100%",
-        height: 130,
-    },
-});
