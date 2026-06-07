@@ -4,12 +4,15 @@
     "slug": "duolingo-clone",
     "version": "1.0.0",
     "orientation": "portrait",
-    "icon": "./assets/images/icon.png",
+    "icon": "./assets/images/mascot-1024.png",
     "scheme": "duolingoclone",
     "userInterfaceStyle": "automatic",
     "ios": {
-      "icon": "./assets/images/icon.png",
-      "bundleIdentifier": "com.anonymous.duolingo-clone"
+      "icon": "./assets/images/mascot-1024.png",
+      "bundleIdentifier": "com.anonymous.duolingo-clone",
+      "infoPlist": {
+        "NSMicrophoneUsageDescription": "This app requires microphone access to let you practice speaking with your AI language teacher."
+      }
     },
     "android": {
       "adaptiveIcon": {
@@ -18,6 +21,9 @@
         "backgroundImage": "./assets/images/android-icon-background.png",
         "monochromeImage": "./assets/images/android-icon-monochrome.png"
       },
+      "permissions": [
+        "RECORD_AUDIO"
+      ],
       "predictiveBackGestureEnabled": false
     },
     "web": {
@@ -31,7 +37,7 @@
         {
           "backgroundColor": "#208AEF",
           "android": {
-            "image": "./assets/images/splash-icon.png",
+            "image": "./assets/images/mascot-welcom.png",
             "imageWidth": 76
           }
         }

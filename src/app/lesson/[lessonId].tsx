@@ -5,6 +5,8 @@ import {
   TouchableOpacity,
   Image,
   ActivityIndicator,
+  PermissionsAndroid,
+  Platform,
 } from "react-native";
 import { SafeAreaView } from "react-native-safe-area-context";
 import { Ionicons, MaterialCommunityIcons } from "@expo/vector-icons";
@@ -32,6 +34,27 @@ function AudioLessonContent({ lesson, onEndCall }: { lesson: any; onEndCall: () 
 
   const toggleMic = useCallback(async () => {
     if (microphone) {
+      if (Platform.OS === 'android') {
+        try {
+          const granted = await PermissionsAndroid.request(
+            PermissionsAndroid.PERMISSIONS.RECORD_AUDIO,
+            {
+              title: "Microphone Permission",
+              message: "This app needs access to your microphone so you can talk to the AI teacher.",
+              buttonNeutral: "Ask Me Later",
+              buttonNegative: "Cancel",
+              buttonPositive: "OK"
+            }
+          );
+          if (granted !== PermissionsAndroid.RESULTS.GRANTED) {
+            console.log("Microphone permission denied");
+            return;
+          }
+        } catch (err) {
+          console.warn(err);
+          return;
+        }
+      }
       await microphone.toggle();
     }
   }, [microphone]);

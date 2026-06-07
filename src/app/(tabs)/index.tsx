@@ -63,6 +63,7 @@ export default function HomeScreen() {
     try {
       await supabase.auth.signOut();
       clearLanguage();
+      router.replace("/onboarding");
     } catch (error) {
       console.error("Error signing out:", error);
     }
