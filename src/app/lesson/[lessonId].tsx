@@ -32,6 +32,50 @@ function AudioLessonContent({ lesson, onEndCall }: { lesson: any; onEndCall: () 
   const session = useCallSession();
   const callingState = useCallCallingState();
 
+  const [teacherTranscript, setTeacherTranscript] = useState<string>("");
+  const [userTranscript, setUserTranscript] = useState<string>("");
+  const [isTeacherSpeaking, setIsTeacherSpeaking] = useState(false);
+  const [isPressingMic, setIsPressingMic] = useState(false);
+
+  useEffect(() => {
+    if (!call) return;
+
+    const unsubscribe = call.on("custom", (event) => {
+      if (event.type === "transcript_partial") {
+        const { speaker, text } = event.custom;
+        if (speaker === "agent") {
+          setTeacherTranscript(text);
+          setIsTeacherSpeaking(true);
+        } else if (speaker === "user") {
+          setUserTranscript(text);
+          setIsTeacherSpeaking(false);
+        }
+      }
+    });
+
+    return () => unsubscribe();
+  }, [call]);
+
+  useEffect(() => {
+    if (teacherTranscript) {
+      setIsTeacherSpeaking(true);
+      const timer = setTimeout(() => {
+        setIsTeacherSpeaking(false);
+      }, 3000);
+      return () => clearTimeout(timer);
+    }
+  }, [teacherTranscript]);
+
+  useEffect(() => {
+    if (userTranscript) {
+      setIsTeacherSpeaking(false);
+      const timer = setTimeout(() => {
+        // Keep it visible for a bit
+      }, 5000);
+      return () => clearTimeout(timer);
+    }
+  }, [userTranscript]);
+
   const toggleMic = useCallback(async () => {
     if (microphone) {
       if (Platform.OS === 'android') {
@@ -59,6 +103,52 @@ function AudioLessonContent({ lesson, onEndCall }: { lesson: any; onEndCall: () 
     }
   }, [microphone]);
 
+  const handlePressIn = useCallback(async () => {
+    setIsPressingMic(true);
+    if (microphone) {
+      if (isMute) {
+        await microphone.enable();
+      }
+    }
+    // Mute teacher locally to avoid echo and make them "stop"
+    if (call) {
+      try {
+        // Try to mute all remote participants' audio locally
+        const remoteParticipants = call.state.participants.filter(p => !p.isLocalParticipant);
+        remoteParticipants.forEach(p => {
+          call.speaker.setParticipantVolume(p.sessionId, 0);
+        });
+      } catch (e) {
+        console.error("Failed to mute remote audio", e);
+      }
+    }
+  }, [microphone, isMute, call]);
+
+  const handlePressOut = useCallback(async () => {
+    setIsPressingMic(false);
+    if (microphone) {
+      await microphone.disable();
+    }
+    if (call) {
+      try {
+        // Restore volume for all remote participants
+        const remoteParticipants = call.state.participants.filter(p => !p.isLocalParticipant);
+        remoteParticipants.forEach(p => {
+          call.speaker.setParticipantVolume(p.sessionId, 1);
+        });
+      } catch (e) {
+        console.error("Failed to unmute remote audio", e);
+      }
+    }
+  }, [microphone, call]);
+
+  useEffect(() => {
+    // Ensure mic is muted on start since we want push-to-talk
+    if (microphone && isJoined && !isPressingMic) {
+      microphone.disable();
+    }
+  }, [microphone, isJoined]);
+
   const isConnecting = callingState === CallingState.JOINING || callingState === CallingState.RINGING;
   const isJoined = callingState === CallingState.JOINED;
 
@@ -85,16 +175,26 @@ function AudioLessonContent({ lesson, onEndCall }: { lesson: any; onEndCall: () 
          <View className="absolute bottom-10 left-6 right-6">
             <View className="bg-white p-6 rounded-3xl shadow-sm relative">
               <Text className="text-lg font-poppins-semibold text-text-primary mb-1">
-                {lesson.aiTeacherPrompt.introMessage.split('. ')[0]}!
+                {isTeacherSpeaking ? "Teacher is speaking..." : "Listening to you..."}
               </Text>
               <Text className="text-base font-poppins text-text-secondary">
-                {isJoined 
+                {teacherTranscript || (isJoined 
                   ? (lesson.aiTeacherPrompt.introMessage.split('. ').slice(1).join('. ') || "Ready to learn?")
-                  : "Connecting..."
+                  : "Connecting...")
                 }
               </Text>
-              <TouchableOpacity className="absolute right-6 top-1/2 -translate-y-2">
-                <Ionicons name="volume-medium" size={28} color="#6c4ef5" />
+              {userTranscript ? (
+                <View className="mt-3 pt-3 border-t border-gray-50">
+                  <Text className="text-xs font-poppins-semibold text-lingua-purple mb-1">You said:</Text>
+                  <Text className="text-sm font-poppins italic text-text-secondary">{userTranscript}</Text>
+                </View>
+              ) : null}
+              <TouchableOpacity className="absolute right-6 top-6">
+                <Ionicons 
+                  name={isTeacherSpeaking ? "volume-high" : "volume-medium"} 
+                  size={28} 
+                  color={isTeacherSpeaking ? "#6c4ef5" : "#a0aec0"} 
+                />
               </TouchableOpacity>
 
               {/* Bubble tail */}
@@ -120,51 +220,24 @@ function AudioLessonContent({ lesson, onEndCall }: { lesson: any; onEndCall: () 
       </View>
 
       {/* Call Controls */}
-      <View className="flex-row justify-between items-center py-6 px-2">
-        <View className="items-center">
-          <TouchableOpacity 
-            key="btn-camera"
-            disabled={true}
-            className="w-16 h-16 rounded-full bg-gray-100 border border-gray-100 items-center justify-center shadow-sm opacity-50"
-          >
-            <Ionicons name="videocam-off" size={28} color="#001328" />
-          </TouchableOpacity>
-          <Text className="text-[10px] font-poppins text-text-secondary mt-1">Camera</Text>
-        </View>
-
-        <View className="items-center">
-          <TouchableOpacity 
-            key="btn-mic"
-            onPress={toggleMic}
-            className={`w-16 h-16 rounded-full border border-gray-100 items-center justify-center shadow-sm ${isMute ? 'bg-red-50' : 'bg-white'}`}
-          >
-            <Ionicons name={isMute ? "mic-off" : "mic"} size={28} color={isMute ? "#ff4b4b" : "#001328"} />
-          </TouchableOpacity>
-          <Text className="text-[10px] font-poppins text-text-secondary mt-1">
-            {isMute ? "Unmute" : "Mute"}
-          </Text>
-        </View>
-
-        <View className="items-center">
-          <TouchableOpacity 
-            key="btn-subtitles"
-            className="w-16 h-16 rounded-full bg-white border border-gray-100 items-center justify-center shadow-sm"
-          >
-            <MaterialCommunityIcons name="translate-variant" size={28} color="#001328" />
-          </TouchableOpacity>
-          <Text className="text-[10px] font-poppins text-text-secondary mt-1">Subtitles</Text>
-        </View>
-
-        <View className="items-center">
-          <TouchableOpacity 
-            key="btn-endcall"
-            onPress={onEndCall}
-            className="w-16 h-16 rounded-full bg-[#ff4b4b] items-center justify-center shadow-lg"
-          >
-            <Ionicons name="call" size={28} color="white" style={{ transform: [{ rotate: '135deg' }] }} />
-          </TouchableOpacity>
-          <Text className="text-[10px] font-poppins text-text-secondary mt-1">End Call</Text>
-        </View>
+      <View className="items-center py-10">
+        <TouchableOpacity 
+          key="btn-mic-push-to-talk"
+          onPressIn={handlePressIn}
+          onPressOut={handlePressOut}
+          activeOpacity={0.7}
+          className={`w-24 h-24 rounded-full items-center justify-center shadow-lg ${isPressingMic ? 'bg-lingua-purple' : 'bg-white border-4 border-lingua-purple/20'}`}
+          style={isPressingMic ? { transform: [{ scale: 1.1 }] } : undefined}
+        >
+          <Ionicons 
+            name={isPressingMic ? "mic" : "mic-outline"} 
+            size={40} 
+            color={isPressingMic ? "white" : "#6c4ef5"} 
+          />
+        </TouchableOpacity>
+        <Text className="text-sm font-poppins-semibold text-text-secondary mt-4">
+          {isPressingMic ? "Listening..." : "Push and hold to talk"}
+        </Text>
       </View>
 
       {/* Feedback Section */}
@@ -473,10 +546,13 @@ export default function AudioLessonScreen() {
             </View>
           </View>
           <View className="flex-row items-center space-x-3 gap-3">
-            <View className="flex-row items-center bg-gray-50 px-3 py-1.5 rounded-full border border-gray-100">
-              <Ionicons name="mic-outline" size={20} color="#001328" />
-              <Text className="text-sm font-poppins-semibold ml-1.5 text-text-primary">Audio</Text>
-            </View>
+            <TouchableOpacity 
+              onPress={handleEndCall}
+              className="bg-red-50 px-3 py-1.5 rounded-full border border-red-100 flex-row items-center"
+            >
+              <Ionicons name="call" size={18} color="#ff4b4b" style={{ transform: [{ rotate: '135deg' }] }} />
+              <Text className="text-sm font-poppins-semibold ml-1.5 text-[#ff4b4b]">End</Text>
+            </TouchableOpacity>
           </View>
         </View>
       </SafeAreaView>

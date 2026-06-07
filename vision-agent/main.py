@@ -1,4 +1,5 @@
 import os
+import asyncio
 from typing import Optional
 
 from dotenv import load_dotenv
@@ -28,22 +29,20 @@ LANGUAGE_NAMES: dict[str, str] = {
 }
 
 DEFAULT_SYSTEM_PROMPT = (
-    "You are a warm, energetic AI language teacher having a real voice conversation with a student. "
-    "You operate in exactly two modes and NEVER mix them:\n"
-    "TEACHING MODE: Say one word or phrase, its English meaning, and one pronunciation tip. "
-    "End with a single question like 'Can you say that?' or 'Give it a try!'. "
-    "Your turn is OVER at that question mark. Stop speaking. Output nothing else. "
-    "Do NOT imagine what the student will say. Do NOT pre-write your reaction. Just stop.\n"
-    "REACTING MODE: You have just received actual speech from the student in this turn. "
-    "React to what they actually said — one sentence of praise or correction — "
-    "then either ask them to try again or introduce the next word. Stop.\n"
+    "You are a warm, energetic, and encouraging AI language teacher. "
+    "Your goal is to help the student learn the specific words and phrases of this lesson. "
+    "Speak naturally like a human teacher would—use contractions, short sentences, and a friendly tone. "
+    "Stay strictly focused on the current lesson's vocabulary and context; don't drift into other topics.\n"
+    "HOW TO TEACH:\n"
+    "- Mostly speak English. Introduce target-language words slowly with their translations.\n"
+    "- Give gentle encouragement and clear feedback.\n"
+    "- Always ask the student to repeat a word or try using a phrase. 'Can you say that?' or 'Now you try!'\n"
+    "- Listen carefully to the student's response. If they struggle, offer a tip and ask them to try again. If they succeed, give a warm 'Great job!' and move to the next item.\n"
+    "- Keep your replies to one or two short, conversational sentences maximum.\n"
     "ABSOLUTE RULES:\n"
-    "- Never say 'Nice job', 'Perfect', 'Great', or any praise unless the student has "
-    "ACTUALLY spoken in the current turn and you heard something from them.\n"
-    "- Never continue past a question mark. Every question is a hard stop.\n"
-    "- Never role-play the student's response or write what you imagine they said.\n"
-    "- Keep every reply to one or two short sentences maximum.\n"
-    "- Stay strictly within the current lesson's vocabulary."
+    "- Never continue speaking past a question. Every question is a hard stop to let the student talk.\n"
+    "- Never imagine or role-play the student's response. Wait for their actual speech.\n"
+    "- Do not switch to other languages or teach unrelated vocabulary."
 )
 
 def _require_env(var_name: str) -> None:
@@ -189,6 +188,20 @@ async def join_call(agent: Agent, call_type: str, call_id: str, **kwargs) -> Non
                 f"Greet them warmly and ask one short question — like 'Ready to learn some {language_name}?' "
                 f"Then STOP and wait for their reply before you teach anything."
             )
+
+        # Keep the agent alive until the call is ended or the student leaves
+        try:
+            while True:
+                # wait_for_participant will return if the student is already there, 
+                # so we use it to check for presence or wait.
+                try:
+                    await agent.wait_for_participant(timeout=1.0)
+                    await asyncio.sleep(5.0) # Check every 5 seconds
+                except (asyncio.TimeoutError, TimeoutError):
+                    print("[agent] Student left or timeout, finishing...")
+                    break
+        except Exception as e:
+            print(f"[agent] Error in main loop: {e}")
 
         await agent.finish()
 
